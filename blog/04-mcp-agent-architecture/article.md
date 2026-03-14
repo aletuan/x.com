@@ -8,7 +8,7 @@
 
 ## Tóm tắt
 
-Bài viết tổng hợp hai chủ đề liên quan trực tiếp đến cách xây AI agents hiện đại: **MCP** (Model Context Protocol) và **skill-based agents**. Nội dung giải thích vì sao LLM quyết định tool dựa trên context + danh sách tools + schema, vì sao quá nhiều tools làm agent kém thông minh, và kiến trúc chuyển từ "1 agent + 500 tools" sang "AI team" với nhiều agent nhỏ, mỗi agent ít tools.
+Bài viết tổng hợp hai chủ đề liên quan trực tiếp đến cách xây AI agents hiện đại: **MCP** (Model Context Protocol) và **skill-based agents**. Nội dung giải thích vì sao LLM quyết định tool dựa trên context + danh sách tools + schema, vì sao quá nhiều tools làm agent kém thông minh, kiến trúc chuyển từ "1 agent + 500 tools" sang "AI team", và hướng tiến hóa tiếp theo: skill systems, capability platform, memory-centric agents.
 
 ---
 
@@ -63,6 +63,10 @@ MCP tạo ra "plugin ecosystem cho AI":
 | AI system | MCP servers |
 
 AI có thể dùng tool của người khác mà không cần implement lại. MCP đang cố gắng trở thành **"USB-C của AI tools"** — nếu mọi service đều cung cấp MCP server, Claude, Cursor, Agents, Copilot, OpenAI đều có thể dùng chung tool.
+
+### MCP clients
+
+**MCP client** là thành phần kết nối ứng dụng (Claude, Cursor, agent platform) với MCP servers. Client gửi `ListToolsRequest`, nhận danh sách tools, chuyển cho LLM; khi LLM sinh tool call, client gửi `CallToolRequest` tới server tương ứng và trả kết quả về. MCP client thường được tích hợp sẵn trong Claude Desktop, Cursor, hoặc các agent framework — developer chỉ cần cấu hình kết nối tới MCP servers, không cần implement protocol từ đầu.
 
 ---
 
@@ -196,22 +200,69 @@ Trong agent architecture mới: **tools = capabilities**, **agents = skill group
 
 Kiến trúc này rất giống tổ chức con người: một công ty không có 1 người biết 500 kỹ năng mà có nhiều người, mỗi người một chuyên môn.
 
+### Skill vs Tool
+
+Khác biệt quan trọng: **Tool** là 1 function (ví dụ `get_repos()`); **Skill** là 1 workflow gồm nhiều bước. Ví dụ skill `analyze_repository_health` có thể gồm: search repos → get pull requests → analyze commits → generate summary. Tức là **skill = orchestrated tools**. Agent không còn thấy 200 tools nữa — nó thấy 10 skills.
+
 ---
 
-## 5. MCP clients
+## 5. Tiến hóa kiến trúc agent
 
-**MCP client** là thành phần kết nối ứng dụng (Claude, Cursor, agent platform) với MCP servers. Client gửi `ListToolsRequest`, nhận danh sách tools, chuyển cho LLM; khi LLM sinh tool call, client gửi `CallToolRequest` tới server tương ứng và trả kết quả về.
+Nhìn vào lịch sử ngắn của LLM → tool use → agent → multi-agent, có thể thấy hướng tiến hóa khá rõ. Nhiều công ty (OpenAI, Anthropic, Cursor, LangChain) đang nói tới các bước sau.
 
-MCP client thường được tích hợp sẵn trong Claude Desktop, Cursor, hoặc các agent framework. Developer chỉ cần cấu hình kết nối tới MCP servers — không cần implement protocol từ đầu.
+### Giai đoạn 1: Tool-based agents (hiện tại)
+
+Mô hình cơ bản: LLM → Tool selection → Tool execution. Các thành phần: prompt, tools, tool schema, execution layer. Đây là agent thế hệ 1. Vấn đề: quá nhiều tools, reasoning yếu khi tool list lớn, khó scale.
+
+### Giai đoạn 2: Multi-agent / AI team (đang dùng)
+
+Thay vì 1 agent + 200 tools, có Coordinator → Specialized agents. Mỗi agent: ít tools, domain rõ ràng, prompt riêng. Ưu điểm: reasoning tốt hơn, dễ scale, giống tổ chức con người.
+
+### Giai đoạn 3: Skill-based systems (đang hình thành)
+
+Chuyển từ tools sang skills. Tool = 1 function; Skill = 1 workflow (orchestrated tools). Agent thấy 10 skills thay vì 200 tools.
+
+### Giai đoạn 4: AI capability platform
+
+Thay vì agent → tools, có **AI capability layer**:
+
+```
+LLM
+ ↓
+Capability registry
+ ↓
+Skills
+ ↓
+Tools
+ ↓
+APIs
+```
+
+Tức là dạng "Operating System cho AI" — capability registry, skill marketplace, agent orchestration, memory layer, tool infrastructure (MCP).
+
+### Giai đoạn 5: Memory-centric agents
+
+Agent hiện nay gần như stateless. Tương lai: persistent memory, knowledge graph. Agent không chỉ react mà còn learn, adapt, plan long-term.
+
+### Giai đoạn 6: Autonomous systems
+
+Một số research lab hướng tới: Goal → Planner → Task graph → Agents → Tools. Agent tự chia task, spawn sub-agents, tự sửa lỗi.
+
+### MCP trong tiến hóa này
+
+MCP đóng vai trò **infrastructure layer** — giống USB, HTTP, POSIX: chuẩn giao tiếp. Trong hệ thống lớn: Agent → Skills → MCP tools → Services.
+
+Insight: Agent architecture đang tiến hóa theo hướng giống tổ chức con người — Tools = workers, Skills = departments, Agents = employees, Coordinator = manager.
 
 ---
 
 ## Kết luận
 
-- **MCP** chuẩn hóa cách LLM truy cập công cụ và dịch vụ bên ngoài — giảm integration code, tạo ecosystem tool cho AI
+- **MCP** chuẩn hóa cách LLM truy cập công cụ và dịch vụ bên ngoài — giảm integration code, tạo ecosystem tool cho AI; đóng vai trò infrastructure layer (USB/HTTP của AI tools)
 - **LLM quyết định tool** dựa trên context + danh sách tools + schema; tool schema là interface giữa LLM và code
 - **Tools chiếm context** — quá nhiều tools làm agent kém thông minh; giải pháp: tool routing, filtering, hierarchical agents
 - **Skill-based agents** chuyển từ 1 agent + nhiều tools sang AI team: nhiều agent nhỏ, mỗi agent ít tools — giống tổ chức con người
+- **Tiến hóa tiếp theo:** Skill systems → Capability platform → Memory-centric → Autonomous; kiến trúc agent đang tiến tới mô hình giống tổ chức con người
 
 ---
 
