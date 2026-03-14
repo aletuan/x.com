@@ -11,7 +11,7 @@ Pipeline **progressive**: lấy transcript EN từ Apify → tóm tắt → gene
 
 **Quan trọng:** Chỉ dùng transcript từ Apify. **Không fallback web fetch** — nếu Apify fail thì báo lỗi, không tạo player.
 
-**Output:** `output/{slug}-{video_id}/` chứa `player.html`, `transcript.json` (EN), `transcript_vi.json` (sau dịch).
+**Output:** `output/{slug}-{video_id}/` chứa `player.html`, `transcript.json` (EN), `transcript_vi.json` (sau dịch). Sau khi generate player, script tự động cập nhật `output/README.md`.
 
 **Hướng dẫn chi tiết:** Xem [GUIDE.md](skills/youtube-crawl-translate/GUIDE.md) — Video ID là gì, cách lấy, lưu ý transcript bị chặn, ví dụ đầy đủ.
 

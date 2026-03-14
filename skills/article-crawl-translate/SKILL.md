@@ -7,7 +7,7 @@ description: Use when the user wants to crawl a web article, translate it to Vie
 
 ## Overview
 
-Pipeline 5 bước để crawl bài viết web, tải ảnh về local, dịch sang tiếng Việt, và lưu markdown. Agent dùng tools có sẵn: `mcp_web_fetch`, `defuddle`, `curl`, file write. Không cần Python crawler.
+Pipeline 6 bước để crawl bài viết web, tải ảnh về local, dịch sang tiếng Việt, và lưu markdown. Agent dùng tools có sẵn: `mcp_web_fetch`, `defuddle`, `curl`, file write. Không cần Python crawler.
 
 **Quan hệ với defuddle:** defuddle chỉ extract markdown. Skill này thực hiện full pipeline (fetch → extract → images → translate → save). Có thể dùng defuddle cho bước extract khi cần.
 
@@ -25,7 +25,7 @@ Pipeline 5 bước để crawl bài viết web, tải ảnh về local, dịch s
 
 ---
 
-## Workflow — 5 Steps
+## Workflow — 6 Steps
 
 | Step | Hành động | Tool / Cách |
 |------|-----------|-------------|
@@ -34,6 +34,7 @@ Pipeline 5 bước để crawl bài viết web, tải ảnh về local, dịch s
 | 3. Download | Tải ảnh về local | `curl -L -o assets/img_N.ext "url"` |
 | 4. Translate | Dịch nội dung sang tiếng Việt | Agent dịch trong context, giữ code blocks/URL |
 | 5. Save | Ghi file markdown | Write `article.md` vào `output/{slug}/` |
+| 6. Index | Cập nhật output/README.md | `python scripts/update_output_index.py --type article --output-dir output/{slug}` |
 
 ---
 
@@ -104,6 +105,11 @@ lang: vi
   - `output/{slug}/article.md`
   - `output/{slug}/assets/img_01.png`, `img_02.png`, …
 
+### Step 6 — Index
+
+- Chạy từ project root: `python scripts/update_output_index.py --type article --output-dir output/{slug}`
+- Script đọc title từ frontmatter `article.md`, thêm entry vào bảng "Bài viết" trong `output/README.md`. Idempotent — bỏ qua nếu đã có.
+
 ---
 
 ## Output Format Template
@@ -148,6 +154,7 @@ lang: vi
 | Browser MCP (navigate + evaluate) | DOM / image URLs | Fallback khi fetch không có ảnh, trang SPA |
 | curl -L -o path "url" | File | Tải ảnh |
 | Write file | — | Ghi article.md |
+| `python scripts/update_output_index.py --type article --output-dir output/{slug}` | — | Cập nhật output/README.md |
 
 ---
 

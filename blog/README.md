@@ -1,6 +1,6 @@
 # Blog — Nghiên cứu AI Agents & Leverage
 
-Bộ ba bài viết nghiên cứu về AI agents, leverage, và tương lai của lập trình.
+Bộ bài viết nghiên cứu về AI agents, leverage, MCP, và tương lai của lập trình.
 
 ## Cấu trúc
 
@@ -9,6 +9,7 @@ Bộ ba bài viết nghiên cứu về AI agents, leverage, và tương lai củ
 | 1 | [AI đòn bẩy cho Product Managers](./01-ai-leverage-for-pms/article.md) | Cách PM dùng sub-agents như leverage thực sự |
 | 2 | [Self-improving skills](./02-self-improving-skills/article.md) | Kỹ năng tự cải thiện và skill graph |
 | 3 | [Kỷ nguyên agent programming](./03-agent-programming-paradigm/article.md) | Khi đơn vị lập trình là agent, không còn file |
+| 4 | [MCP và kiến trúc agent](./04-mcp-agent-architecture/article.md) | MCP, skill-based agents, tool routing |
 
 ## Nguồn tham khảo
 

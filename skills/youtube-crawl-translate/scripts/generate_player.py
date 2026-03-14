@@ -9,6 +9,7 @@ Or: pass args via stdin as JSON object: {video_id, video_title, transcript, summ
 import json
 import html
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -573,6 +574,22 @@ def main():
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
     (out_path / "player.html").write_text(html_content, encoding="utf-8")
+
+    # Update output/README.md index
+    project_root = Path(__file__).resolve().parent.parent.parent.parent
+    update_script = project_root / "scripts" / "update_output_index.py"
+    if update_script.exists():
+        subprocess.run(
+            [
+                sys.executable,
+                str(update_script),
+                "--type", "youtube",
+                "--output-dir", str(out_path),
+                "--title", video_title,
+            ],
+            cwd=str(project_root),
+            capture_output=True,
+        )
 
     print(json.dumps({"output": str(out_path / "player.html")}))
 
