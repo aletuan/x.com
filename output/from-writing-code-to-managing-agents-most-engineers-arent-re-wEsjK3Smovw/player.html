@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From Writing Code to Managing Agents. Most Engineers Aren&#x27;t Ready | Stanford University, Mihail Eric</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --highlight: #eff6ff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --highlight: #1e3a5f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --accent: #60a5fa;
+        --border: #334155;
+        --highlight: #1e3a5f;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0 2rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 1.5rem 0; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .theme-toggle {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .theme-toggle .icon-moon { display: none; }
+    .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    .theme-toggle:hover {
+      background: var(--highlight);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .watch-row {
+      display: grid;
+      grid-template-columns: 55fr 45fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 767px) {
+      body { padding: 0 1rem; }
+      .watch-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-notice {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .file-notice code {
+      background: rgba(255,255,255,0.2);
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+    }
+
+    .transcript-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .transcript-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem 0;
+      color: var(--text);
+    }
+
+    .transcript-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .lang-chip {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .lang-chip:hover {
+      background: var(--highlight);
+    }
+
+    .lang-chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .lang-chip:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .transcript-area {
+      flex: 1;
+      min-height: 6rem;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .transcript-line {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      line-height: 1.5;
+    }
+
+    .transcript-line.dim {
+      opacity: 0.6;
+    }
+
+    .transcript-line.current {
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .summary-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      color: var(--text);
+    }
+
+    .summary-text {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .summary-overview {
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+      width: 100%;
+    }
+
+    .summary-highlights {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    .summary-highlights li {
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-ts {
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .highlight-ts:hover {
+      color: var(--accent);
+    }
+
+    .empty {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>From Writing Code to Managing Agents. Most Engineers Aren&#x27;t Ready | Stanford University, Mihail Eric</h1>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="watch-row">
+      <div class="video-wrap">
+        <div id="player"></div>
+        <div id="fileProtocolNotice" class="file-notice" style="display:none">
+          Video không hiển thị khi mở file trực tiếp. Chạy: <code>lsof -ti:8765 | xargs kill -9 2>/dev/null || true; python -m http.server 8765</code> rồi mở <code>http://localhost:8765/player.html</code>
+        </div>
+      </div>
+
+      <div class="transcript-card">
+        <h2>Transcript (sync)</h2>
+        <div class="transcript-header">
+          <button class="lang-chip active" id="langVi" aria-label="Xem phụ đề tiếng Việt">VI</button>
+          <button class="lang-chip" id="langEn" aria-label="View English subtitles">EN</button>
+        </div>
+        <div class="transcript-area">
+          <div class="transcript-line dim" id="transcriptPrev">—</div>
+          <div class="transcript-line current" id="transcriptCurrent">—</div>
+          <div class="transcript-line dim" id="transcriptNext">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h2>Tóm tắt</h2>
+      <div class="summary-text" id="summary">
+        <div class="summary-overview">Mihail Eric (Stanford, AI lead tại startup SF) giảng về sự chuyển đổi từ viết code sang quản lý agents. Thế hệ junior dev mới sẽ là AI native engineer đầu tiên — vừa có fundamentals vững vừa thành thạo agentic workflows. Perfect storm: post-COVID overhire → layoffs, CS graduates tăng 2–3x, AI khiến employer cân nhắc hire ít người AI-native hơn. Top 1% AI native: build agent từng bước (không 10 agents cùng lúc), context switching giữa các agent như quản lý nhân sự, agent-friendly codebase (tests = contracts, README đồng bộ code, design patterns nhất quán). Agents compound errors nhanh — codebase phải robust trước khi thả agent. Functional vs incredible software: taste, experimentation, last-mile effort. Junior dev vẫn cần: senior resistant to AI, junior như sponge — naivety tốt cho founder. Rem Koning (Harvard): AI native = AI trong product, human out of loop.</div>
+        <h3 style="font-size:0.9rem;font-weight:600;margin:0 0 0.5rem 0;">Các phần đáng chú ý</h3><ul class="summary-highlights"><li><span class="highlight-ts" data-seek="0" role="button" tabindex="0"><strong>[00:00]</strong> AI native engineer — thế hệ mới vừa code vừa quản lý agents</span></li><li><span class="highlight-ts" data-seek="67" role="button" tabindex="0"><strong>[01:07]</strong> Single developer → manager of agents; thêm agents không phải lúc nào cũng tốt hơn</span></li><li><span class="highlight-ts" data-seek="68" role="button" tabindex="0"><strong>[01:08]</strong> Quản lý multi-agent = last boss — top 0.1% users</span></li><li><span class="highlight-ts" data-seek="67" role="button" tabindex="0"><strong>[01:07]</strong> Mihail: AI lead startup SF, dạy Stanford &quot;The Modern Software Developer&quot;</span></li><li><span class="highlight-ts" data-seek="72" role="button" tabindex="0"><strong>[01:12]</strong> Junior engineers: 1000 applications, 2 responses — perfect storm (layoffs, CS boom, AI)</span></li><li><span class="highlight-ts" data-seek="193" role="button" tabindex="0"><strong>[03:13]</strong> Top 1%: build từng agent một, không 10 agents cùng lúc</span></li><li><span class="highlight-ts" data-seek="283" role="button" tabindex="0"><strong>[04:43]</strong> Context switching giữa agents = kỹ năng core — giống quản lý con người</span></li><li><span class="highlight-ts" data-seek="343" role="button" tabindex="0"><strong>[05:43]</strong> Agent-friendly codebase: tests = contracts, README đồng bộ, design patterns nhất quán</span></li><li><span class="highlight-ts" data-seek="410" role="button" tabindex="0"><strong>[06:50]</strong> Agents compound errors — codebase phải airtight trước khi thả agent</span></li><li><span class="highlight-ts" data-seek="518" role="button" tabindex="0"><strong>[08:38]</strong> Functional vs incredible: taste, experimentation, last-mile effort</span></li><li><span class="highlight-ts" data-seek="656" role="button" tabindex="0"><strong>[10:56]</strong> Boris (Claude): Anthropic rewrite Claude mỗi 1–2 tuần bằng Claude</span></li><li><span class="highlight-ts" data-seek="657" role="button" tabindex="0"><strong>[10:57]</strong> Junior vẫn cần: sponge, naivety tốt cho startup — senior resistant</span></li><li><span class="highlight-ts" data-seek="790" role="button" tabindex="0"><strong>[13:10]</strong> Rem Koning (Harvard): AI native = AI trong product, human out of loop</span></li></ul>
+        
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let transcriptData = [{"text": "there is this emergence of kind of like", "start": 0.16, "duration": 3.84}, {"text": "a new I would say class of like engineer", "start": 1.68, "duration": 4.214}, {"text": "which is like the AI native engineer", "start": 4.0, "duration": 3.919}, {"text": "[music] and AI is that language. AI is", "start": 5.894, "duration": 3.866}, {"text": "that new language. This particular", "start": 7.919, "duration": 4.081}, {"text": "generation of junior developers of", "start": 9.76, "duration": 3.6}, {"text": "junior engineers of people that are now", "start": 12.0, "duration": 2.719}, {"text": "entering the workforce will I think be", "start": 13.36, "duration": 3.839}, {"text": "the first kind of generation of that new", "start": 14.719, "duration": 4.72}, {"text": "shift. A single developer become a", "start": 17.199, "duration": 4.16}, {"text": "manager of agents. Adding [music] more", "start": 19.439, "duration": 3.521}, {"text": "agents doesn't always create for a", "start": 21.359, "duration": 3.121}, {"text": "better system. In fact, it can make for", "start": 22.96, "duration": 3.44}, {"text": "a lot worse systems actually if if you", "start": 24.48, "duration": 3.119}, {"text": "just let them [music] go and do whatever", "start": 26.4, "duration": 2.799}, {"text": "they want. So really knowing how to like", "start": 27.599, "duration": 3.68}, {"text": "properly handle multiple agents is like", "start": 29.199, "duration": 4.001}, {"text": "the last boss in a game. Like if you can", "start": 31.279, "duration": 3.28}, {"text": "do that really really well, then you are", "start": 33.2, "duration": 4.24}, {"text": "like literally like the top top.1% of of", "start": 34.559, "duration": 6.081}, {"text": "users even today. I'm Mihel. I lead AI", "start": 37.44, "duration": 5.04}, {"text": "at an early stage startup here in San", "start": 40.64, "duration": 3.759}, {"text": "Francisco. I also teach class at", "start": 42.48, "duration": 3.28}, {"text": "Stanford. The title of the class is the", "start": 44.399, "duration": 2.561}, {"text": "modern software developer. It's", "start": 45.76, "duration": 3.04}, {"text": "definitely the first class where the", "start": 46.96, "duration": 4.079}, {"text": "focus is AI across the SDLC. within like", "start": 48.8, "duration": 4.079}, {"text": "a few hours of the class being announced", "start": 51.039, "duration": 3.601}, {"text": "and it kind of opened up for enrollment.", "start": 52.879, "duration": 3.761}, {"text": "Filled up over 100 students trying to", "start": 54.64, "duration": 5.48}, {"text": "get into the class.", "start": 56.64, "duration": 3.48}, {"text": ">> What is happening to junior software", "start": 66.96, "duration": 4.88}, {"text": "engineers?", "start": 68.96, "duration": 5.76}, {"text": "there was this huge momentum around", "start": 71.84, "duration": 4.959}, {"text": "something kind of crazy is happening", "start": 74.72, "duration": 3.92}, {"text": "software development and AI is really", "start": 76.799, "duration": 3.111}, {"text": "starting to make its way into every", "start": 78.64, "duration": 3.28}, {"text": "[music] single part of how software is", "start": 79.91, "duration": 3.61}, {"text": "being done and and clearly something was", "start": 81.92, "duration": 3.199}, {"text": "changing and I've heard some pretty", "start": 83.52, "duration": 4.32}, {"text": "scary anecdotes where I was talking to", "start": 85.119, "duration": 4.081}, {"text": "someone that had just graduated at", "start": 87.84, "duration": 3.04}, {"text": "Berkeley and they were saying that they", "start": 89.2, "duration": 3.52}, {"text": "had applied to like a thousand places", "start": 90.88, "duration": 3.52}, {"text": "and had heard back from like only heard", "start": 92.72, "duration": 3.28}, {"text": "back from like [music] two places. So", "start": 94.4, "duration": 3.28}, {"text": "not even like got interviews and you", "start": 96.0, "duration": 2.96}, {"text": "know had gone through the pipeline but", "start": 97.68, "duration": 2.88}, {"text": "really were just heard back. So the", "start": 98.96, "duration": 3.76}, {"text": "reality is for a lot of junior engineers", "start": 100.56, "duration": 3.84}, {"text": "it's [music] very difficult for them to", "start": 102.72, "duration": 3.359}, {"text": "you know get some of these roles. It's", "start": 104.4, "duration": 3.359}, {"text": "it's an interesting time in in the", "start": 106.079, "duration": 3.281}, {"text": "ecosystem actually the soft ecosystem", "start": 107.759, "duration": 2.64}, {"text": "where [music] where basically three", "start": 109.36, "duration": 2.96}, {"text": "things happened came together in this", "start": 110.399, "duration": 3.68}, {"text": "kind of like perfect storm. The first", "start": 112.32, "duration": 3.439}, {"text": "thing that happened was in around 2021", "start": 114.079, "duration": 3.36}, {"text": "there was this a huge surge of like", "start": 115.759, "duration": 3.761}, {"text": "hiring soon after co there was just a", "start": 117.439, "duration": 3.601}, {"text": "bunch of companies that felt they needed", "start": 119.52, "duration": 3.36}, {"text": "to increase their employee count and", "start": 121.04, "duration": 4.48}, {"text": "then I think a lot of companies realized", "start": 122.88, "duration": 4.4}, {"text": "that they like overhired. So there was", "start": 125.52, "duration": 3.28}, {"text": "like massive layoffs that happened where", "start": 127.28, "duration": 3.119}, {"text": "all these companies that had hired a ton", "start": 128.8, "duration": 2.799}, {"text": "of people realized [music] that actually", "start": 130.399, "duration": 3.041}, {"text": "we can like reduce our workforce by 20%", "start": 131.599, "duration": 3.681}, {"text": "30% and it's still okay. That was", "start": 133.44, "duration": 3.439}, {"text": "combined with the fact that [music] the", "start": 135.28, "duration": 3.84}, {"text": "growth of the CS curriculum like the CS", "start": 136.879, "duration": 4.161}, {"text": "major nationally and internationally has", "start": 139.12, "duration": 2.96}, {"text": "grown tremendously [music] in the last", "start": 141.04, "duration": 2.96}, {"text": "like 10 to 15 years. So when I was", "start": 142.08, "duration": 3.04}, {"text": "graduating, you know, there's like some", "start": 144.0, "duration": 2.56}, {"text": "number of graduates and I think since", "start": 145.12, "duration": 2.8}, {"text": "then [music] like it's doubled to maybe", "start": 146.56, "duration": 3.44}, {"text": "3x in terms of how many graduates from", "start": 147.92, "duration": 4.0}, {"text": "CS are graduating every year. And so you", "start": 150.0, "duration": 3.28}, {"text": "have [music] a huge workforce of people", "start": 151.92, "duration": 2.959}, {"text": "that have essentially like been laid", "start": 153.28, "duration": 4.239}, {"text": "off. you have this new overwhelming like", "start": 154.879, "duration": 4.481}, {"text": "new generation of engineers. We want", "start": 157.519, "duration": 3.44}, {"text": "jobs. And then the third thing that I", "start": 159.36, "duration": 3.92}, {"text": "think was contributed to all this was AI", "start": 160.959, "duration": 3.441}, {"text": "became popular, right? Like people", "start": 163.28, "duration": 2.239}, {"text": "started like really paying attention to", "start": 164.4, "duration": 3.199}, {"text": "AI. And so for a lot of employers, they", "start": 165.519, "duration": 4.127}, {"text": "started considering do I need to hire", "start": 167.599, "duration": 4.161}, {"text": "[music] more people to fill my gaps or", "start": 169.646, "duration": 3.873}, {"text": "can I just hire fewer people that are", "start": 171.76, "duration": 4.32}, {"text": "maybe native at AI and [music]", "start": 173.519, "duration": 4.161}, {"text": "that way cover the quota that I have", "start": 176.08, "duration": 3.36}, {"text": "maybe for employment. And so this", "start": 177.68, "duration": 4.0}, {"text": "particular generation of junior", "start": 179.44, "duration": 3.68}, {"text": "developers, of junior engineers, the", "start": 181.68, "duration": 2.32}, {"text": "people that are now entering the", "start": 183.12, "duration": 2.0}, {"text": "workforce will, I think, [music] be the", "start": 184.0, "duration": 3.44}, {"text": "first kind of generation of that new", "start": 185.12, "duration": 4.56}, {"text": "shift, right, where they have to both", "start": 187.44, "duration": 4.48}, {"text": "have good fundamentals, but also know", "start": 189.68, "duration": 4.24}, {"text": "how to be fully AI native.", "start": 191.92, "duration": 4.72}, {"text": ">> How top 1% AI native engineers", "start": 193.92, "duration": 5.28}, {"text": "orchestrate [music] agents. At its core,", "start": 196.64, "duration": 4.4}, {"text": "I think that the AI native engineer is", "start": 199.2, "duration": 4.24}, {"text": "one that both has like a strong backing", "start": 201.04, "duration": 4.64}, {"text": "and and a foundation in traditional", "start": 203.44, "duration": 4.4}, {"text": "programming, system design, and", "start": 205.68, "duration": 4.96}, {"text": "algorithmic thinking, but is very", "start": 207.84, "duration": 4.64}, {"text": "competent at using like a gentic", "start": 210.64, "duration": 3.36}, {"text": "workflows. [music] I always teach them", "start": 212.48, "duration": 3.119}, {"text": "like build it up peace meal. You know,", "start": 214.0, "duration": 3.519}, {"text": "Boris from Claude said he does like 10", "start": 215.599, "duration": 3.36}, {"text": "agents at once and so I should start", "start": 217.519, "duration": 2.64}, {"text": "doing 10 agents at once. Like that", "start": 218.959, "duration": 2.64}, {"text": "that's like the wrong outcome that you", "start": 220.159, "duration": 3.521}, {"text": "should emphasize. Again, I would build", "start": 221.599, "duration": 3.761}, {"text": "it one at a I would say, hey, like I'm", "start": 223.68, "duration": 3.279}, {"text": "really good at doing one agent workflow", "start": 225.36, "duration": 2.959}, {"text": "quite well and I can build like a", "start": 226.959, "duration": 2.801}, {"text": "complex piece of software with one", "start": 228.319, "duration": 3.121}, {"text": "agent, but then [music] I know that I", "start": 229.76, "duration": 2.8}, {"text": "have to do this like other thing which", "start": 231.44, "duration": 2.64}, {"text": "is like maybe a small change. Thinking", "start": 232.56, "duration": 3.2}, {"text": "about your tasks as something that are", "start": 234.08, "duration": 4.96}, {"text": "isolated and that can be done with", "start": 235.76, "duration": 4.8}, {"text": "confidence by something that is that is", "start": 239.04, "duration": 3.119}, {"text": "a second or third agent. And so you add,", "start": 240.56, "duration": 3.12}, {"text": "you know, a second agent to fix the logo", "start": 242.159, "duration": 2.72}, {"text": "and you're like, well, this agent is", "start": 243.68, "duration": 3.119}, {"text": "fixing the logo. Another agent maybe", "start": 244.879, "duration": 4.72}, {"text": "could also um update the copy on the", "start": 246.799, "duration": 4.401}, {"text": "header of of the website. And again,", "start": 249.599, "duration": 2.961}, {"text": "this is like an isolated change that has", "start": 251.2, "duration": 2.56}, {"text": "nothing to do with what the second agent", "start": 252.56, "duration": 2.48}, {"text": "was doing. And so, the way I would think", "start": 253.76, "duration": 3.599}, {"text": "about it is iteratively add [music]", "start": 255.04, "duration": 5.199}, {"text": "more work for the agents. Make sure that", "start": 257.359, "duration": 5.361}, {"text": "you first understand what has to be done", "start": 260.239, "duration": 4.321}, {"text": "and then know where the lines are", "start": 262.72, "duration": 3.52}, {"text": "between those those items of work. And", "start": 264.56, "duration": 3.12}, {"text": "then like when you're feeling good about", "start": 266.24, "duration": 2.8}, {"text": "how one agent is doing something, then", "start": 267.68, "duration": 2.48}, {"text": "add a second one. Then if the second", "start": 269.04, "duration": 2.159}, {"text": "one's doing well and you're feeling", "start": 270.16, "duration": 2.08}, {"text": "confident, then add a third one, you", "start": 271.199, "duration": 2.881}, {"text": "know? So, I would build it up more step", "start": 272.24, "duration": 4.56}, {"text": "by step rather than 10 agents at once.", "start": 274.08, "duration": 4.08}, {"text": "The second thing that I think is really", "start": 276.8, "duration": 3.2}, {"text": "really important there is knowing how to", "start": 278.16, "duration": 3.52}, {"text": "like context switch. In practice, what", "start": 280.0, "duration": 3.04}, {"text": "you're doing is you're like kicking off", "start": 281.68, "duration": 3.04}, {"text": "these like [music] interns. Basically,", "start": 283.04, "duration": 4.24}, {"text": "they're like very eager, savvy interns,", "start": 284.72, "duration": 4.479}, {"text": "these agents, and they're doing a thing", "start": 287.28, "duration": 4.0}, {"text": "and then you're just watching them in", "start": 289.199, "duration": 4.321}, {"text": "the terminal or like in the IDE and", "start": 291.28, "duration": 3.76}, {"text": "you're just like seeing them do work and", "start": 293.52, "duration": 3.2}, {"text": "they're like contributing code and it's", "start": 295.04, "duration": 3.12}, {"text": "just getting written somewhere and but", "start": 296.72, "duration": 2.56}, {"text": "sometimes they get stuck, right? How do", "start": 298.16, "duration": 3.68}, {"text": "you go from like one to another to like", "start": 299.28, "duration": 4.8}, {"text": "understanding, hey, this agent one was", "start": 301.84, "duration": 3.68}, {"text": "working on this particular task, agent", "start": 304.08, "duration": 2.64}, {"text": "two was working on another task, agent", "start": 305.52, "duration": 2.239}, {"text": "three was working on another task, and", "start": 306.72, "duration": 2.24}, {"text": "then you're like constantly switching", "start": 307.759, "duration": 2.641}, {"text": "back and forth. And it's a very", "start": 308.96, "duration": 2.799}, {"text": "difficult thing to do even as a human,", "start": 310.4, "duration": 2.639}, {"text": "right? To know how to like remember what", "start": 311.759, "duration": 2.88}, {"text": "the last thing was working on, but still", "start": 313.039, "duration": 3.121}, {"text": "have enough context to meaningfully push", "start": 314.639, "duration": 3.521}, {"text": "that task forward. And so [music] that", "start": 316.16, "duration": 3.52}, {"text": "switching, I think, is probably one of", "start": 318.16, "duration": 2.96}, {"text": "the core skills of of getting multi-", "start": 319.68, "duration": 3.359}, {"text": "aent workflows to work really well. That", "start": 321.12, "duration": 3.44}, {"text": "what I've described is basically what", "start": 323.039, "duration": 3.281}, {"text": "makes a good manager, like a good human", "start": 324.56, "duration": 2.8}, {"text": "manager. It has nothing to do with like", "start": 326.32, "duration": 2.64}, {"text": "an agent. Like if you can do that task", "start": 327.36, "duration": 3.04}, {"text": "really really well then you also are", "start": 328.96, "duration": 2.56}, {"text": "like a very good you'll be like a good", "start": 330.4, "duration": 2.639}, {"text": "human manager in general and so the", "start": 331.52, "duration": 2.72}, {"text": "people that I've seen best at doing that", "start": 333.039, "duration": 3.121}, {"text": "are the ones that are also have been", "start": 334.24, "duration": 3.6}, {"text": "managers of like humans you know or", "start": 336.16, "duration": 3.36}, {"text": "human developers and have learned how to", "start": 337.84, "duration": 3.04}, {"text": "do that context switching and then apply", "start": 339.52, "duration": 3.84}, {"text": "similar principles to to agents there's", "start": 340.88, "duration": 4.319}, {"text": "this concept that I'm calling like an", "start": 343.36, "duration": 4.32}, {"text": "agentfriendly codebase or an agent", "start": 345.199, "duration": 4.641}, {"text": "friendly development ecosystem. Uh, and", "start": 347.68, "duration": 4.16}, {"text": "what I mean here is if an agent was", "start": 349.84, "duration": 4.24}, {"text": "released into your codebase, would it", "start": 351.84, "duration": 4.24}, {"text": "know how to understand what's happening", "start": 354.08, "duration": 3.92}, {"text": "in the codebase? When you release an", "start": 356.08, "duration": 3.92}, {"text": "agent to go and build in the context of", "start": 358.0, "duration": 3.6}, {"text": "your codebase, the way you ensure that", "start": 360.0, "duration": 2.56}, {"text": "they're going to like not break", "start": 361.6, "duration": 2.08}, {"text": "something and that whatever they", "start": 362.56, "duration": 3.44}, {"text": "contribute will work, is they test it", "start": 363.68, "duration": 4.48}, {"text": "against your tests, which are basically", "start": 366.0, "duration": 4.319}, {"text": "contracts that define the correctness of", "start": 368.16, "duration": 3.84}, {"text": "software. You need to define these", "start": 370.319, "duration": 2.961}, {"text": "contracts. If if you don't have enough", "start": 372.0, "duration": 2.24}, {"text": "test coverage, then you don't have", "start": 373.28, "duration": 2.72}, {"text": "contracts for your software. agents only", "start": 374.24, "duration": 3.44}, {"text": "can operate on contracts like explicitly", "start": 376.0, "duration": 3.44}, {"text": "defined contracts of software. Any", "start": 377.68, "duration": 2.88}, {"text": "developer who's been in the industry", "start": 379.44, "duration": 3.039}, {"text": "knows that readmes get out of date with", "start": 380.56, "duration": 3.274}, {"text": "what's happening in the code almost", "start": 382.479, "duration": 2.56}, {"text": "[music] immediately. And so you have", "start": 383.834, "duration": 3.925}, {"text": "these like two descriptions of the same", "start": 385.039, "duration": 4.241}, {"text": "thing. The code says one thing but the", "start": 387.759, "duration": 2.641}, {"text": "readme says a completely different", "start": 389.28, "duration": 2.8}, {"text": "thing. If your code has that kind of a", "start": 390.4, "duration": 4.16}, {"text": "situation then the agent will read the", "start": 392.08, "duration": 4.32}, {"text": "readme and maybe the code and they'll", "start": 394.56, "duration": 3.44}, {"text": "and they'll ask them like which of these", "start": 396.4, "duration": 2.799}, {"text": "what's the right interpretation? Should", "start": 398.0, "duration": 2.479}, {"text": "I follow the read memes what the read me", "start": 399.199, "duration": 3.12}, {"text": "says or what the codebase says? And so", "start": 400.479, "duration": 2.881}, {"text": "make sure they're consistent, right?", "start": 402.319, "duration": 3.361}, {"text": "This is like a simple thing. When you", "start": 403.36, "duration": 4.8}, {"text": "get spaghetti code, it's typically when", "start": 405.68, "duration": 4.799}, {"text": "an agent has maybe gone on and built", "start": 408.16, "duration": 4.64}, {"text": "something for multiple iterations, maybe", "start": 410.479, "duration": 3.921}, {"text": "multiple features, and it just started", "start": 412.8, "duration": 3.119}, {"text": "kind of like going off the rails a", "start": 414.4, "duration": 2.799}, {"text": "little bit. One bad thing that they're", "start": 415.919, "duration": 3.761}, {"text": "really good at is agents can compound", "start": 417.199, "duration": 4.641}, {"text": "errors very quickly. If an agent has one", "start": 419.68, "duration": 4.32}, {"text": "misunderstanding in a code, and then it", "start": 421.84, "duration": 3.52}, {"text": "sees that misunderstanding that it", "start": 424.0, "duration": 3.84}, {"text": "created in step one, it can double down", "start": 425.36, "duration": 4.16}, {"text": "and and create another error in step", "start": 427.84, "duration": 3.44}, {"text": "two, it'll magnify it. The most", "start": 429.52, "duration": 3.2}, {"text": "important thing is like having making", "start": 431.28, "duration": 2.88}, {"text": "sure that the first thing that the agent", "start": 432.72, "duration": 3.44}, {"text": "sees is completely robust and it's", "start": 434.16, "duration": 3.599}, {"text": "completely airtight in terms of design,", "start": 436.16, "duration": 2.96}, {"text": "in terms of testing, in terms of like", "start": 437.759, "duration": 3.121}, {"text": "the build, like a lot of these like kind", "start": 439.12, "duration": 4.32}, {"text": "of core parts of the the codebase itself", "start": 440.88, "duration": 4.24}, {"text": "before you even think about the agent.", "start": 443.44, "duration": 3.275}, {"text": "So again, like making sure that like the", "start": 445.12, "duration": 3.12}, {"text": "[music] first version of your code that", "start": 446.715, "duration": 4.245}, {"text": "an agent sees is self-consistent, making", "start": 448.24, "duration": 4.079}, {"text": "sure that it's well tested, making sure", "start": 450.96, "duration": 3.359}, {"text": "that you have linting in place and style", "start": 452.319, "duration": 3.28}, {"text": "checking so that you know your your", "start": 454.319, "duration": 3.521}, {"text": "codebase is is consistently formatted. A", "start": 455.599, "duration": 3.44}, {"text": "lot of these things will ensure that", "start": 457.84, "duration": 4.16}, {"text": "your agent is always adhering to the the", "start": 459.039, "duration": 4.481}, {"text": "kind of the rules of your codebase that", "start": 462.0, "duration": 2.72}, {"text": "you've [music] already defined. And then", "start": 463.52, "duration": 2.48}, {"text": "the last thing that I'll add just just", "start": 464.72, "duration": 2.8}, {"text": "to give another example of like agent", "start": 466.0, "duration": 3.68}, {"text": "friendly agent first code bases, are you", "start": 467.52, "duration": 4.88}, {"text": "consistent about like design patterns in", "start": 469.68, "duration": 4.799}, {"text": "your code? What I mean here is if if", "start": 472.4, "duration": 3.84}, {"text": "there's one part of your codebase where", "start": 474.479, "duration": 3.201}, {"text": "when you create a certain kind of", "start": 476.24, "duration": 4.56}, {"text": "object, you use this one API and there's", "start": 477.68, "duration": 4.639}, {"text": "another part of the codebase, you also", "start": 480.8, "duration": 2.799}, {"text": "create the same object, but you're using", "start": 482.319, "duration": 4.16}, {"text": "a different API. when an agent now has", "start": 483.599, "duration": 5.44}, {"text": "to develop in your codebase, which of", "start": 486.479, "duration": 3.681}, {"text": "the two should it use? Should you use", "start": 489.039, "duration": 4.481}, {"text": "the API 1 or API 2? And if people have", "start": 490.16, "duration": 4.96}, {"text": "an agent that goes and picks the wrong", "start": 493.52, "duration": 4.32}, {"text": "API, well, a human would also have been", "start": 495.12, "duration": 4.24}, {"text": "confused. If I were walking to your", "start": 497.84, "duration": 2.96}, {"text": "codebase and saw the two different ways", "start": 499.36, "duration": 2.88}, {"text": "of doing it, I would also ask myself,", "start": 500.8, "duration": 2.88}, {"text": "should I do one or two? I don't know. I", "start": 502.24, "duration": 2.959}, {"text": "see both. And I would probably end up", "start": 503.68, "duration": 3.359}, {"text": "asking a teammate, hey, which of these", "start": 505.199, "duration": 3.201}, {"text": "are we actually supposed to use?", "start": 507.039, "duration": 2.641}, {"text": "consistent design [music] patterns and", "start": 508.4, "duration": 2.96}, {"text": "and kind of programmatic patterns I", "start": 509.68, "duration": 3.12}, {"text": "think is also something that the best", "start": 511.36, "duration": 3.44}, {"text": "agent friendly codebases I've seen use", "start": 512.8, "duration": 4.719}, {"text": ">> functional software versus incredible", "start": 514.8, "duration": 3.76}, {"text": "software", "start": 517.519, "duration": 3.041}, {"text": ">> a few things that define functional", "start": 518.56, "duration": 4.399}, {"text": "software from like incredible software", "start": 520.56, "duration": 4.1}, {"text": "the one version of the answer is just", "start": 522.959, "duration": 3.601}, {"text": "[music] taste like what is good software", "start": 524.66, "duration": 4.299}, {"text": "taste right and genuinely there's people", "start": 526.56, "duration": 4.08}, {"text": "that have taste and don't have taste or", "start": 528.959, "duration": 3.041}, {"text": "just people that have taste that spend", "start": 530.64, "duration": 3.04}, {"text": "more time developing that taste when I", "start": 532.0, "duration": 2.959}, {"text": "look at sort of the the students in my", "start": 533.68, "duration": 2.8}, {"text": "class we had some requirements like you", "start": 534.959, "duration": 2.641}, {"text": "have to build like five different flows", "start": 536.48, "duration": 2.4}, {"text": "or something like you can create those", "start": 537.6, "duration": 2.96}, {"text": "flows, but if you want to push yourself", "start": 538.88, "duration": 2.88}, {"text": "like doing the bonus, you know, the", "start": 540.56, "duration": 3.04}, {"text": "bonus and then the extra credit, that is", "start": 541.76, "duration": 3.519}, {"text": "like I think where the difference starts", "start": 543.6, "duration": 3.28}, {"text": "to arise is when someone is like, I know", "start": 545.279, "duration": 3.281}, {"text": "that I've already like hit 100% on this", "start": 546.88, "duration": 3.28}, {"text": "or, you know, got most of the credit for", "start": 548.56, "duration": 3.36}, {"text": "the assignment or the project, but I", "start": 550.16, "duration": 3.679}, {"text": "really want to like I'm invested in like", "start": 551.92, "duration": 4.08}, {"text": "building the most complex thing because", "start": 553.839, "duration": 4.081}, {"text": "I want to solve a problem more than just", "start": 556.0, "duration": 3.36}, {"text": "get [music] the grade, right? But the", "start": 557.92, "duration": 3.68}, {"text": "taste building happens in that like that", "start": 559.36, "duration": 4.4}, {"text": "last mile like where you go spend and", "start": 561.6, "duration": 3.84}, {"text": "you like do the extra work to like", "start": 563.76, "duration": 4.8}, {"text": "expand the feature, make it more robust,", "start": 565.44, "duration": 4.72}, {"text": "make more things possible in the", "start": 568.56, "duration": 2.64}, {"text": "application. You know, the students", "start": 570.16, "duration": 2.32}, {"text": "again that I think did the best were the", "start": 571.2, "duration": 2.4}, {"text": "ones that like are now literally", "start": 572.48, "duration": 2.88}, {"text": "building startups around their projects", "start": 573.6, "duration": 3.04}, {"text": "because they like see that there's", "start": 575.36, "duration": 2.24}, {"text": "something there and they're going to", "start": 576.64, "duration": 2.24}, {"text": "like they're rolling with it. You know,", "start": 577.6, "duration": 2.88}, {"text": "like the class ended, but they're like", "start": 578.88, "duration": 2.88}, {"text": "we're still but we're still working on", "start": 580.48, "duration": 2.88}, {"text": "the exact same thing because we think", "start": 581.76, "duration": 3.519}, {"text": "there's more to build here. And that I", "start": 583.36, "duration": 3.599}, {"text": "think is where the way the top engineers", "start": 585.279, "duration": 4.881}, {"text": "think. Experimentation is sort of the", "start": 586.959, "duration": 5.521}, {"text": "name of the game in [music] becoming an", "start": 590.16, "duration": 4.0}, {"text": "AI native software developer. One", "start": 592.48, "duration": 3.68}, {"text": "example that comes to mind is when Boris", "start": 594.16, "duration": 3.84}, {"text": "came from cloud code came to speak.", "start": 596.16, "duration": 4.08}, {"text": "Someone like Boris even a team like you", "start": 598.0, "duration": 3.68}, {"text": "know Claude at Anthropic that is", "start": 600.24, "duration": 2.88}, {"text": "building such an amazing piece of", "start": 601.68, "duration": 3.68}, {"text": "software they basically rewrite Claude", "start": 603.12, "duration": 3.839}, {"text": "every week or like week [music] or two", "start": 605.36, "duration": 3.52}, {"text": "weeks using Claude, right? So they are", "start": 606.959, "duration": 3.041}, {"text": "like constantly rewriting their own", "start": 608.88, "duration": 3.2}, {"text": "piece of software with software like", "start": 610.0, "duration": 3.6}, {"text": "that they've built. And so they", "start": 612.08, "duration": 3.6}, {"text": "themselves are also [music] figuring", "start": 613.6, "duration": 3.919}, {"text": "things out as they go like they are", "start": 615.68, "duration": 3.04}, {"text": "building their system but they are", "start": 617.519, "duration": 2.773}, {"text": "experimenting and constantly iterating", "start": 618.72, "duration": 3.44}, {"text": "[music] based on feedback from their", "start": 620.292, "duration": 4.667}, {"text": "users and even if they seem like they", "start": 622.16, "duration": 4.16}, {"text": "have all the answers they don't you know", "start": 624.959, "duration": 2.721}, {"text": "they themselves are also discovering", "start": 626.32, "duration": 2.72}, {"text": "what works and what what doesn't work", "start": 627.68, "duration": 3.36}, {"text": "and so the more important thing is to", "start": 629.04, "duration": 4.32}, {"text": "build experimentation into your own", "start": 631.04, "duration": 4.239}, {"text": "workflows and I tried to reinforce in", "start": 633.36, "duration": 3.919}, {"text": "the students was look I can come here", "start": 635.279, "duration": 4.0}, {"text": "and I can give you suggestions I can say", "start": 637.279, "duration": 3.68}, {"text": "you should try this tool here's what I", "start": 639.279, "duration": 3.12}, {"text": "think is good about this tool but at At", "start": 640.959, "duration": 2.961}, {"text": "the end of the day, you have to sort of", "start": 642.399, "duration": 2.88}, {"text": "like beat your head against the wall a", "start": 643.92, "duration": 2.479}, {"text": "little bit yourself. [music] You have to", "start": 645.279, "duration": 2.401}, {"text": "be able to experiment. You have to be", "start": 646.399, "duration": 2.961}, {"text": "able to see what works for you and what", "start": 647.68, "duration": 3.2}, {"text": "doesn't work for you and really just", "start": 649.36, "duration": 3.12}, {"text": "kind of make that a part of the kind of", "start": 650.88, "duration": 2.56}, {"text": "the new way of doing software", "start": 652.48, "duration": 2.56}, {"text": "development, experimentation, hacking,", "start": 653.44, "duration": 2.8}, {"text": "and just making that a part of your", "start": 655.04, "duration": 2.0}, {"text": "workflow.", "start": 656.24, "duration": 2.88}, {"text": ">> Why the world still needs junior", "start": 657.04, "duration": 3.52}, {"text": "software engineers?", "start": 659.12, "duration": 3.2}, {"text": ">> Senior developers historically tend to", "start": 660.56, "duration": 3.6}, {"text": "be a little bit resistant to AI tools", "start": 662.32, "duration": 4.16}, {"text": "because they're so ingrained in their", "start": 664.16, "duration": 3.44}, {"text": "own way of doing things cuz they've been", "start": 666.48, "duration": 2.4}, {"text": "developing for 20 years and they're", "start": 667.6, "duration": 2.64}, {"text": "like, \"Oh, the only way to do this is", "start": 668.88, "duration": 2.639}, {"text": "the way that I've done it. I use them.\"", "start": 670.24, "duration": 2.48}, {"text": "the senior developer sometimes going to", "start": 671.519, "duration": 2.56}, {"text": "be the most stubborn, [music]", "start": 672.72, "duration": 2.799}, {"text": "but someone who is coming to the", "start": 674.079, "duration": 2.641}, {"text": "industry for the first time, they're", "start": 675.519, "duration": 3.041}, {"text": "like they're like a sponge. Like", "start": 676.72, "duration": 3.28}, {"text": "everything is possible to them. Like", "start": 678.56, "duration": 2.64}, {"text": "they're learning things for the first", "start": 680.0, "duration": 3.2}, {"text": "time. And so all of the things that are", "start": 681.2, "duration": 3.36}, {"text": "difficult about the world and society", "start": 683.2, "duration": 3.04}, {"text": "and and industries and verticals, they", "start": 684.56, "duration": 3.12}, {"text": "don't yet. They haven't internalized", "start": 686.24, "duration": 3.12}, {"text": "that yet. They're not like scarred by", "start": 687.68, "duration": 3.12}, {"text": "like how hard healthcare is. They just", "start": 689.36, "duration": 3.2}, {"text": "see like, oh, I see a problem. I don't", "start": 690.8, "duration": 3.039}, {"text": "know. Like why don't I go try and do it?", "start": 692.56, "duration": 3.712}, {"text": "And so there's like a good naivity", "start": 693.839, "duration": 4.481}, {"text": "[music] to how young young people think,", "start": 696.272, "duration": 3.807}, {"text": "which is perfect for a startup founder.", "start": 698.32, "duration": 3.04}, {"text": "they're going to be be brave enough to", "start": 700.079, "duration": 2.801}, {"text": "go and tackle the thing. In those", "start": 701.36, "duration": 3.919}, {"text": "situations, they end up being the best", "start": 702.88, "duration": 3.873}, {"text": "people that have adopted that skill set", "start": 705.279, "duration": 3.361}, {"text": "[music] that everyone is now asking for.", "start": 706.753, "duration": 3.326}, {"text": "Even if there is concern that, you know,", "start": 708.64, "duration": 3.12}, {"text": "it's becoming harder to to kind of get", "start": 710.079, "duration": 3.281}, {"text": "employed, I [music] think the people", "start": 711.76, "duration": 3.44}, {"text": "that are learning these skills for the", "start": 713.36, "duration": 3.44}, {"text": "first time end up being the most nimble", "start": 715.2, "duration": 3.28}, {"text": "and end up being the most like fast at", "start": 716.8, "duration": 3.52}, {"text": "like kind of using those [music] skills.", "start": 718.48, "duration": 3.76}, {"text": "So, I actually think they can still", "start": 720.32, "duration": 3.36}, {"text": "succeed in ways that senior developers", "start": 722.24, "duration": 3.12}, {"text": "cannot. fundamentally like what you're", "start": 723.68, "duration": 3.378}, {"text": "teaching with software is like how", "start": 725.36, "duration": 4.0}, {"text": "[music] to think about building of a of", "start": 727.058, "duration": 5.341}, {"text": "a complex system using [music] digital", "start": 729.36, "duration": 4.479}, {"text": "means and like learning how to use", "start": 732.399, "duration": 3.841}, {"text": "algorithms to solve that system. This is", "start": 733.839, "duration": 3.701}, {"text": "almost like more like math than it", "start": 736.24, "duration": 3.92}, {"text": "[music] is like CS, right? It's it's", "start": 737.54, "duration": 3.739}, {"text": "like like you're learning like math", "start": 740.16, "duration": 2.96}, {"text": "skills almost. And I think that is just", "start": 741.279, "duration": 3.521}, {"text": "like teaching someone how to like think", "start": 743.12, "duration": 3.68}, {"text": "because so much of the CS profession is", "start": 744.8, "duration": 4.8}, {"text": "is breaking things up and seeing how", "start": 746.8, "duration": 4.64}, {"text": "things work and then fixing things and", "start": 749.6, "duration": 3.359}, {"text": "then expanding on things and kind of", "start": 751.44, "duration": 3.04}, {"text": "iterating on things. And so I think that", "start": 752.959, "duration": 2.88}, {"text": "the people that are, you know,", "start": 754.48, "duration": 4.0}, {"text": "developers by trade, they're a lot more", "start": 755.839, "duration": 4.481}, {"text": "willing to customize things. They're a", "start": 758.48, "duration": 2.96}, {"text": "lot more willing to to [music] kind of", "start": 760.32, "duration": 2.56}, {"text": "fix things when they don't work. They're", "start": 761.44, "duration": 2.88}, {"text": "a lot more willing to say like, \"Hey,", "start": 762.88, "duration": 3.28}, {"text": "why did this happen? Let me see if I can", "start": 764.32, "duration": 3.04}, {"text": "kind of get into that, you know, get", "start": 766.16, "duration": 2.64}, {"text": "into internals a little bit in ways that", "start": 767.36, "duration": 3.039}, {"text": "other people [music] are more like the", "start": 768.8, "duration": 2.8}, {"text": "system doesn't work. Okay, I guess I", "start": 770.399, "duration": 2.801}, {"text": "need to move away from it. Almost like", "start": 771.6, "duration": 2.96}, {"text": "arrogance. Like the arrogance of a", "start": 773.2, "duration": 3.439}, {"text": "developer sees any problem and thinks", "start": 774.56, "duration": 3.519}, {"text": "software is the solution to the problem.", "start": 776.639, "duration": 2.64}, {"text": "It's like the confidence to say like,", "start": 778.079, "duration": 2.641}, {"text": "hey, I I'm going to try and fix this in", "start": 779.279, "duration": 2.56}, {"text": "a way that I know how to use and I'm", "start": 780.72, "duration": 2.0}, {"text": "going to use the tools that I know how", "start": 781.839, "duration": 2.161}, {"text": "to use and let's see if we can make this", "start": 782.72, "duration": 2.64}, {"text": "work. And that that [music] I think is", "start": 784.0, "duration": 2.959}, {"text": "the the kind of the most powerful", "start": 785.36, "duration": 5.44}, {"text": "properties of of CS developers.", "start": 786.959, "duration": 5.041}, {"text": ">> So you're like, Claude, make me", "start": 790.8, "duration": 2.8}, {"text": "something. Codeex, make me something.", "start": 792.0, "duration": 2.56}, {"text": "And then you're like, let's add this", "start": 793.6, "duration": 2.08}, {"text": "other feature. And then like let's do", "start": 794.56, "duration": 2.8}, {"text": "another one. And a month goes by and", "start": 795.68, "duration": 3.2}, {"text": "you've built the most beautiful piece of", "start": 797.36, "duration": 3.84}, {"text": "software. It's crazy overengineered and", "start": 798.88, "duration": 4.079}, {"text": "then you launch and nobody wants it. Hi,", "start": 801.2, "duration": 3.759}, {"text": "my name is Rem Coning. I'm a professor", "start": 802.959, "duration": 3.44}, {"text": "at Harvard Business School and I study", "start": 804.959, "duration": 3.041}, {"text": "entrepreneurship and AI. I think we're", "start": 806.399, "duration": 3.361}, {"text": "in a world where increasingly what", "start": 808.0, "duration": 2.9}, {"text": "matters is your ability to allocate", "start": 809.76, "duration": 3.759}, {"text": "[music] intelligence. The key for AI", "start": 810.9, "duration": 4.379}, {"text": "native is that you're not just using it", "start": 813.519, "duration": 3.44}, {"text": "to do [music] the work. You're embedding", "start": 815.279, "duration": 3.441}, {"text": "it in the product so that the AI can", "start": 816.959, "duration": 4.241}, {"text": "directly do the work with the customer.", "start": 818.72, "duration": 5.44}, {"text": "You want to take you as the human out of", "start": 821.2, "duration": 4.879}, {"text": "the loop. That's the key to building AI", "start": 824.16, "duration": 3.76}, {"text": "native organizations. What happens when", "start": 826.079, "duration": 3.76}, {"text": "the AI starts talking to one another?", "start": 827.92, "duration": 3.12}, {"text": "What happens when the AI start", "start": 829.839, "duration": 3.521}, {"text": "collaborating? What do they need for one", "start": 831.04, "duration": 4.0}, {"text": "another? [music] I think is a big", "start": 833.36, "duration": 3.599}, {"text": "interesting open question. It's a little", "start": 835.04, "duration": 3.919}, {"text": "provocative to think that way. Um, but I", "start": 836.959, "duration": 3.361}, {"text": "think it's one where there'll probably", "start": 838.959, "duration": 3.361}, {"text": "be some trillion dollar companies that", "start": 840.32, "duration": 3.519}, {"text": "come out of answering that question.", "start": 842.32, "duration": 4.519}, {"text": "Well,", "start": 843.839, "duration": 3.0}];
+    let player;
+    let pollInterval;
+
+    async function loadTranscriptAtRuntime() {
+      try {
+        const r = await fetch('transcript_vi.json');
+        if (r.ok) {
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) { transcriptData = data; return; }
+        }
+      } catch (e) {}
+      try {
+        const r = await fetch('transcript.json');
+        if (r.ok) {
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) { transcriptData = data; return; }
+        }
+      } catch (e) {}
+    }
+    loadTranscriptAtRuntime();
+
+    function initTheme() {
+      const saved = localStorage.getItem('yt-player-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('yt-player-theme', next);
+    });
+
+    const SYNC_OFFSET = 2;
+    function findSegmentIndex(time) {
+      const t = time + SYNC_OFFSET;
+      for (let i = 0; i < transcriptData.length; i++) {
+        const s = transcriptData[i];
+        if (t >= s.start && t < s.start + s.duration) return i;
+      }
+      // Gap: show nearest segment (last passed or next upcoming)
+      if (transcriptData.length === 0) return -1;
+      for (let i = transcriptData.length - 1; i >= 0; i--) {
+        if (t >= transcriptData[i].start) return i;
+      }
+      return 0;
+    }
+
+    const langKey = 'yt-player-lang';
+    const savedLang = localStorage.getItem(langKey) || 'vi';
+    let showVi = savedLang === 'vi';
+    document.getElementById('langVi').classList.toggle('active', showVi);
+    document.getElementById('langEn').classList.toggle('active', !showVi);
+
+    document.getElementById('langVi').addEventListener('click', () => {
+      showVi = true;
+      document.getElementById('langVi').classList.add('active');
+      document.getElementById('langEn').classList.remove('active');
+      localStorage.setItem(langKey, 'vi');
+      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+    });
+    document.getElementById('langEn').addEventListener('click', () => {
+      showVi = false;
+      document.getElementById('langEn').classList.add('active');
+      document.getElementById('langVi').classList.remove('active');
+      localStorage.setItem(langKey, 'en');
+      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+    });
+
+    function getSegmentText(seg) {
+      const text = seg.text || '—';
+      const textVi = seg.textVi || '';
+      return showVi && textVi ? textVi : text;
+    }
+
+    function updateTranscript(time) {
+      const idx = findSegmentIndex(time);
+      const prevEl = document.getElementById('transcriptPrev');
+      const curEl = document.getElementById('transcriptCurrent');
+      const nextEl = document.getElementById('transcriptNext');
+      if (idx >= 0) {
+        curEl.textContent = getSegmentText(transcriptData[idx]);
+        prevEl.textContent = idx > 0 ? getSegmentText(transcriptData[idx - 1]) : '—';
+        nextEl.textContent = idx < transcriptData.length - 1 ? getSegmentText(transcriptData[idx + 1]) : '—';
+      } else {
+        prevEl.textContent = '—';
+        curEl.textContent = '—';
+        nextEl.textContent = '—';
+      }
+    }
+
+    document.querySelectorAll('.highlight-ts').forEach(el => {
+      el.addEventListener('click', () => {
+        const sec = parseFloat(el.getAttribute('data-seek'));
+        if (player && player.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const sec = parseFloat(el.getAttribute('data-seek'));
+          if (player && player.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+        }
+      });
+    });
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'wEsjK3Smovw',
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: { autoplay: 0 },
+        events: {
+          onReady: function() {
+            pollInterval = setInterval(function() {
+              if (player && player.getCurrentTime) {
+                const t = player.getCurrentTime();
+                if (typeof t === 'number' && !isNaN(t)) updateTranscript(t);
+              }
+            }, 300);
+          }
+        }
+      });
+    }
+
+    if (window.location.protocol === 'file:') {
+      document.getElementById('fileProtocolNotice').style.display = 'block';
+    }
+    initTheme();
+    updateTranscript(0);
+  </script>
+</body>
+</html>

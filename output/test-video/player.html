@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Video - AI Agents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --highlight: #eff6ff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --highlight: #1e3a5f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --accent: #60a5fa;
+        --border: #334155;
+        --highlight: #1e3a5f;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 1.5rem; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .theme-toggle {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--highlight);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      background: #000;
+    }
+
+    #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      color: var(--text);
+    }
+
+    .transcript-area {
+      min-height: 5rem;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .transcript-original {
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .transcript-translated {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .summary-text {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .comment {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comment:last-child {
+      border-bottom: none;
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .comment-author {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .comment-likes {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .comment-text {
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .empty {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Test Video - AI Agents</h1>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">☀</button>
+    </header>
+
+    <div class="video-wrap">
+      <div id="player"></div>
+    </div>
+
+    <div class="card">
+      <h2>Transcript (sync)</h2>
+      <div class="transcript-area">
+        <div class="transcript-original" id="transcriptOriginal">—</div>
+        <div class="transcript-translated" id="transcriptTranslated">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tóm tắt</h2>
+      <div class="summary-text" id="summary">Video giới thiệu về AI agents và cách chúng hoạt động.</div>
+    </div>
+
+    <div class="card">
+      <h2>Comment nổi bật</h2>
+      <div id="comments"></div>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const transcriptData = [{"text": "Welcome to this video.", "start": 0.0, "duration": 2.5, "textVi": "Chào mừng đến với video này."}, {"text": "Today we'll talk about AI agents.", "start": 2.5, "duration": 3.2, "textVi": "Hôm nay chúng ta sẽ nói về AI agents."}, {"text": "Let's get started.", "start": 5.7, "duration": 1.8, "textVi": "Hãy bắt đầu."}];
+    const commentsData = [{"author": "User1", "text": "Great video!", "likeCount": 42}, {"author": "User2", "text": "Very helpful, thanks.", "likeCount": 15}];
+    let player;
+    let pollInterval;
+
+    function initTheme() {
+      const saved = localStorage.getItem('yt-player-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀' : '🌙';
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      document.getElementById('themeToggle').textContent = next === 'dark' ? '☀' : '🌙';
+      localStorage.setItem('yt-player-theme', next);
+    });
+
+    function findSegment(time) {
+      for (let i = 0; i < transcriptData.length; i++) {
+        const s = transcriptData[i];
+        if (time >= s.start && time < s.start + s.duration) return s;
+      }
+      return null;
+    }
+
+    function updateTranscript(time) {
+      const seg = findSegment(time);
+      const elOrig = document.getElementById('transcriptOriginal');
+      const elTrans = document.getElementById('transcriptTranslated');
+      if (seg) {
+        elOrig.textContent = seg.text || '—';
+        elTrans.textContent = seg.textVi || '—';
+      }
+    }
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'KQ6zr6kCPj8',
+        playerVars: { autoplay: 0 },
+        events: {
+          onReady: function() {
+            pollInterval = setInterval(function() {
+              if (player && player.getCurrentTime) {
+                const t = player.getCurrentTime();
+                if (typeof t === 'number' && !isNaN(t)) updateTranscript(t);
+              }
+            }, 300);
+          }
+        }
+      });
+    }
+
+    function renderComments() {
+      const container = document.getElementById('comments');
+      if (!commentsData || commentsData.length === 0) {
+        container.innerHTML = '<span class="empty">Chưa có comment</span>';
+        return;
+      }
+      container.innerHTML = commentsData.map(c => `
+        <div class="comment">
+          <div class="comment-header">
+            <span class="comment-author">${c.author || 'Anonymous'}</span>
+            <span class="comment-likes">${c.likeCount || 0} likes</span>
+          </div>
+          <div class="comment-text">${escapeHtml(c.text || '')}</div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    initTheme();
+    renderComments();
+  </script>
+</body>
+</html>

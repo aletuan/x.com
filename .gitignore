@@ -3,9 +3,6 @@
 .env.local
 .env.*.local
 
-# Output
-output/
-
 # Python
 __pycache__/
 *.py[cod]
