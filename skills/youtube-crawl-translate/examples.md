@@ -19,8 +19,8 @@ cd /Users/andy/X.com
 python skills/youtube-crawl-translate/scripts/fetch_video_info.py dQw4w9WgXcQ
 # → {"title":"Never Gonna Give You Up","output_dir":"output/never-gonna-give-you-up-dQw4w9WgXcQ",...}
 
-# 2. Fetch transcript
-python skills/youtube-crawl-translate/scripts/fetch_transcript.py dQw4w9WgXcQ
+# 2. Fetch transcript (ghi transcript.json vào output_dir)
+python skills/youtube-crawl-translate/scripts/fetch_transcript.py dQw4w9WgXcQ output/never-gonna-give-you-up-dQw4w9WgXcQ
 
 # 3. Generate (sau khi agent dịch + tóm tắt, dùng output_dir từ step 1)
 echo '{"video_id":"dQw4w9WgXcQ","video_title":"Never Gonna Give You Up","transcript":[...],"summary":"...","output_dir":"output/never-gonna-give-you-up-dQw4w9WgXcQ"}' | python skills/youtube-crawl-translate/scripts/generate_player.py
@@ -28,15 +28,21 @@ echo '{"video_id":"dQw4w9WgXcQ","video_title":"Never Gonna Give You Up","transcr
 
 ## Output structure
 
-Folder dùng slug từ title + video_id:
+Folder dùng slug từ title + video_id. Transcript luôn cùng thư mục với player:
 
 ```
 output/
 └── {slug}-{video_id}/
-    └── player.html
+    ├── player.html
+    ├── transcript.json      # EN
+    └── transcript_vi.json   # VI (sau dịch)
 ```
 
-Ví dụ: `output/steve-yegge-ai-agentic-coding-aFsAOu2bgFk/player.html`
+Ví dụ: `output/how-to-code-with-ai-agents-advice-from-openclaw-creator-pete-wKy1_KLcxcs/`
+
+## Transcript runtime
+
+Player load `transcript_vi.json` (nếu có) hoặc `transcript.json` lúc runtime. Sau khi dịch xong, **refresh** trang để có phụ đề VI — không cần regenerate player.
 
 ## Mở player.html
 

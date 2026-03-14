@@ -2,7 +2,8 @@
 """
 Fetch YouTube transcript (EN only) via Apify.
 Chỉ Apify — không fallback web fetch. Chỉ tiếng Anh để có kết quả nhanh nhất.
-Usage: python fetch_transcript.py <video_id>
+Usage: python fetch_transcript.py <video_id> [output_dir]
+  output_dir: optional — write transcript.json into this dir (same as player.html)
 Output: JSON to stdout [{text, start, duration}, ...]
 """
 import json
@@ -71,14 +72,20 @@ def fetch_via_apify(video_id: str) -> list:
 
 def main():
     if not sys.argv[1:]:
-        print(json.dumps({"error": "Usage: fetch_transcript.py <video_id>"}), file=sys.stderr)
+        print(json.dumps({"error": "Usage: fetch_transcript.py <video_id> [output_dir]"}), file=sys.stderr)
         sys.exit(1)
     video_id = sys.argv[1]
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else None
 
     try:
         result = fetch_via_apify(video_id)
         if result:
-            print(json.dumps(result, ensure_ascii=False))
+            data = json.dumps(result, ensure_ascii=False)
+            if output_dir:
+                out_path = Path(output_dir)
+                out_path.mkdir(parents=True, exist_ok=True)
+                (out_path / "transcript.json").write_text(data, encoding="utf-8")
+            print(data)
     except Exception as e:
         print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)

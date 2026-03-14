@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 Generate YouTube player HTML with transcript sync, dark mode, agentic UI.
+Player loads transcript at runtime: transcript_vi.json (if exists) > transcript.json > embedded fallback.
+No need to regenerate when transcript_vi.json is ready — user refreshes page.
 Usage: python generate_player.py <video_id> <video_title> <transcript_json> <summary> <output_dir>
 Or: pass args via stdin as JSON object: {video_id, video_title, transcript, summary, output_dir}
 """
@@ -391,9 +393,27 @@ def build_html(
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    const transcriptData = {transcript_js};
+    let transcriptData = {transcript_js};
     let player;
     let pollInterval;
+
+    async function loadTranscriptAtRuntime() {{
+      try {{
+        const r = await fetch('transcript_vi.json');
+        if (r.ok) {{
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) {{ transcriptData = data; return; }}
+        }}
+      }} catch (e) {{}}
+      try {{
+        const r = await fetch('transcript.json');
+        if (r.ok) {{
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) {{ transcriptData = data; return; }}
+        }}
+      }} catch (e) {{}}
+    }}
+    loadTranscriptAtRuntime();
 
     function initTheme() {{
       const saved = localStorage.getItem('yt-player-theme');

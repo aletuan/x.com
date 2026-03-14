@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
 Translate transcript EN→VI using Claude (batch, with progress).
-Usage: cat transcript.json | python translate_transcript.py
-   or: python translate_transcript.py < transcript.json
+Usage: cat transcript.json | python translate_transcript.py [--output-dir DIR]
+   or: python translate_transcript.py < transcript.json [--output-dir DIR]
+  --output-dir DIR: write transcript_vi.json into DIR (same dir as player.html)
 Output: JSON to stdout [{text, textVi, start, duration}, ...]
 """
+import argparse
 import json
 import os
 import sys
@@ -25,14 +27,14 @@ SYSTEM_PROMPT = """You translate English transcript segments to Vietnamese.
 Rules:
 - Preserve conversational tone.
 - Keep technical terms in English when standard (API, SaaS, Claude Code, Jira, etc.).
-- Output exactly one Vietnamese line per input line, in the same order.
-- No numbering, no extra text. Just the translations, one per line.
+- Output EXACTLY one Vietnamese line per input line. Same count. Never merge or skip.
+- Reply with a JSON array only: ["trans1", "trans2", ...] — no other text.
 - If a line is [Music] or similar, output the same."""
 
 
 def translate_batch(texts: list[str], client) -> list[str]:
-    """Translate a batch of texts via Claude."""
-    user_content = "\n".join(texts)
+    """Translate a batch of texts via Claude. Returns exactly len(texts) items."""
+    user_content = f"Translate these {len(texts)} lines to Vietnamese. Reply with JSON array of {len(texts)} strings.\n\n" + "\n".join(f"{i+1}. {t}" for i, t in enumerate(texts))
     resp = client.messages.create(
         model=MODEL,
         max_tokens=4096,
@@ -42,14 +44,28 @@ def translate_batch(texts: list[str], client) -> list[str]:
     block = resp.content[0]
     if block.type != "text":
         raise RuntimeError(f"Unexpected response type: {block.type}")
-    out = block.text.strip().split("\n")
-    # Pad or trim to match input count
+    raw = block.text.strip()
+    # Extract JSON array (handle markdown code blocks)
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0]
+    out = json.loads(raw)
+    if not isinstance(out, list):
+        raise RuntimeError("Expected JSON array")
     while len(out) < len(texts):
         out.append("")
-    return out[: len(texts)]
+    return [str(x).strip() if x else "" for x in out[: len(texts)]]
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Translate transcript EN→VI")
+    parser.add_argument(
+        "--output-dir",
+        "-o",
+        metavar="DIR",
+        help="Write transcript_vi.json into DIR (same dir as player.html)",
+    )
+    args = parser.parse_args()
+
     try:
         transcript = json.load(sys.stdin)
     except json.JSONDecodeError as e:
@@ -89,7 +105,12 @@ def main():
         pct = min(100, int(100 * (i + len(batch)) / total))
         print(f"Translating... {pct}%", file=sys.stderr)
 
-    print(json.dumps(results, ensure_ascii=False))
+    data = json.dumps(results, ensure_ascii=False)
+    if args.output_dir:
+        out_path = Path(args.output_dir)
+        out_path.mkdir(parents=True, exist_ok=True)
+        (out_path / "transcript_vi.json").write_text(data, encoding="utf-8")
+    print(data)
 
 
 if __name__ == "__main__":

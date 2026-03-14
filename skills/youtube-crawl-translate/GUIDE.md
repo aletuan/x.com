@@ -106,28 +106,22 @@ Output: `{"title":"Never Gonna Give You Up","output_dir":"output/never-gonna-giv
 
 ### 3. Fetch transcript
 
+Truyền `output_dir` từ step 2 để lưu `transcript.json` cùng thư mục với player:
+
 ```bash
 cd /Users/andy/X.com
-python skills/youtube-crawl-translate/scripts/fetch_transcript.py dQw4w9WgXcQ
+python skills/youtube-crawl-translate/scripts/fetch_transcript.py dQw4w9WgXcQ output/never-gonna-give-you-up-dQw4w9WgXcQ
 ```
 
-Output: `[{"text": "...", "start": 0.0, "duration": 4.5}, ...]`
-
-### 3b. (Optional) Dịch sang tiếng Việt
-
-```bash
-python skills/youtube-crawl-translate/scripts/fetch_transcript.py dQw4w9WgXcQ 2>/dev/null | python skills/youtube-crawl-translate/scripts/translate_transcript.py
-```
-
-Cần `ANTHROPIC_API_KEY` trong `.env`. Output: `[{"text": "...", "textVi": "...", "start": 0.0, "duration": 4.5}, ...]`
+Output: JSON ra stdout và ghi vào `output/never-gonna-give-you-up-dQw4w9WgXcQ/transcript.json`
 
 ### 4. Tóm tắt (Agent)
 
 Tóm tắt chi tiết với mốc thời gian `[MM:SS]` và các đoạn hội thoại ý nghĩa. Xem SKILL.md Step 4.
 
-### 5. Generate player
+### 5. Generate player (Phase 1 — user xem ngay với EN)
 
-Dùng `output_dir` từ fetch_video_info. Transcript từ Apify: `[{text, start, duration}, ...]` (EN only).
+Dùng `output_dir` từ fetch_video_info. Transcript EN: `[{text, start, duration}, ...]`.
 
 ```bash
 echo '{"video_id":"dQw4w9WgXcQ","video_title":"Never Gonna Give You Up","transcript":[{"text":"Hi","start":0,"duration":1}],"summary_overview":"...","summary_highlights":["[00:00] ..."],"output_dir":"output/never-gonna-give-you-up-dQw4w9WgXcQ"}' | python skills/youtube-crawl-translate/scripts/generate_player.py
@@ -146,16 +140,26 @@ cd output/never-gonna-give-you-up-dQw4w9WgXcQ && python -m http.server 8080
 # Mở http://localhost:8080/player.html
 ```
 
+### 7. (Phase 2) Dịch VI — trong khi user xem
+
+```bash
+cat output/never-gonna-give-you-up-dQw4w9WgXcQ/transcript.json | python skills/youtube-crawl-translate/scripts/translate_transcript.py --output-dir output/never-gonna-give-you-up-dQw4w9WgXcQ
+```
+
+Player tự load `transcript_vi.json` lúc runtime. User refresh trang để có phụ đề tiếng Việt (không cần regenerate).
+
 ---
 
 ## Cấu trúc output
 
-Folder dùng **slug từ title** + video_id để dễ nhận biết nội dung:
+Folder dùng **slug từ title** + video_id. Transcript luôn nằm cùng thư mục với player:
 
 ```
 output/
 └── {slug}-{video_id}/
-    └── player.html
+    ├── player.html
+    ├── transcript.json      # EN (sau fetch_transcript)
+    └── transcript_vi.json   # VI (sau translate_transcript)
 ```
 
-Ví dụ: `output/steve-yegge-ai-agentic-coding-aFsAOu2bgFk/player.html`
+Ví dụ: `output/how-to-code-with-ai-agents-advice-from-openclaw-creator-pete-wKy1_KLcxcs/`
