@@ -44,12 +44,6 @@ GitHub API
 
 GitHub MCP server đã có sẵn: `get_repos()`, `get_pull_requests()`, `get_issues()`, `create_pr()`. App của bạn chỉ cần connect vào MCP server — không cần viết toàn bộ integration.
 
-### Ý nghĩa quan trọng nhất
-
-**MCP biến các API phức tạp thành các tool chuẩn để LLM sử dụng.**
-
-- **Trước:** API → custom code → tool schema → LLM  
-- **Sau:** API → MCP Server → Tools → LLM
 
 ### Hệ sinh thái plugin cho AI
 
@@ -203,6 +197,37 @@ Kiến trúc này rất giống tổ chức con người: một công ty không 
 ### Skill vs Tool
 
 Khác biệt quan trọng: **Tool** là 1 function (ví dụ `get_repos()`); **Skill** là 1 workflow gồm nhiều bước. Ví dụ skill `analyze_repository_health` có thể gồm: search repos → get pull requests → analyze commits → generate summary. Tức là **skill = orchestrated tools**. Agent không còn thấy 200 tools nữa — nó thấy 10 skills.
+
+Cấu trúc phân tầng:
+
+```
+Agent
+   ├── Workflow A
+   │       ├── Skill 1
+   │       └── Skill 2
+   │
+   ├── Workflow B
+   │       ├── Skill 3
+   │       └── Skill 4
+   │
+   ▼
+Capabilities
+   ├ web search
+   ├ database query
+   ├ file read
+   └ code execution
+```
+
+Agent chọn workflow → workflow gồm các skill → mỗi skill gọi capabilities (tools) bên dưới.
+
+Ví dụ cụ thể:
+
+| Tầng | Ví dụ |
+|------|-------|
+| **Agent** | CodingAgent |
+| **Workflow** | fix_bug_workflow, write_feature_workflow, review_pr_workflow |
+| **Skill** | search_codebase, write_patch, run_tests, summarize_changes |
+| **Capabilities** | read_file, execute_python, git_commit, terminal |
 
 ---
 
