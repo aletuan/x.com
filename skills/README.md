@@ -7,6 +7,7 @@ Skills hướng dẫn agent thực hiện các workflow chuyên biệt.
 | Skill | Mô tả |
 |-------|-------|
 | [article-crawl-translate](./article-crawl-translate/SKILL.md) | Crawl bài viết web, tải ảnh, dịch sang tiếng Việt, lưu markdown |
+| [youtube-crawl-translate](./youtube-crawl-translate/SKILL.md) | Crawl video YouTube, lấy transcript, tóm tắt, dịch VI, tạo player HTML có phụ đề đồng bộ |
 
 ## Cách dùng với Cursor
 
