@@ -114,6 +114,13 @@ echo '{"video_id":"...","video_title":"...","transcript":[...],"summary_overview
 
 Sau đó mở trong browser: `open output/{slug}-{video_id}/player.html` hoặc HTTP server.
 
+**Mở HTTP server (cổng 8765 — ít conflict hơn 8080):** Trước khi start, kill process đang chiếm cổng:
+```bash
+lsof -ti:8765 | xargs kill -9 2>/dev/null || true
+cd output/{slug}-{video_id} && python -m http.server 8765
+# Mở http://localhost:8765/player.html
+```
+
 ### Step 6–7 — (Phase 2) Dịch VI + Regenerate
 
 **Trong khi user đang xem**, chạy dịch trong background:

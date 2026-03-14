@@ -363,7 +363,7 @@ def build_html(
       <div class="video-wrap">
         <div id="player"></div>
         <div id="fileProtocolNotice" class="file-notice" style="display:none">
-          Video không hiển thị khi mở file trực tiếp. Chạy: <code>python -m http.server 8080</code> rồi mở <code>http://localhost:8080/player.html</code>
+          Video không hiển thị khi mở file trực tiếp. Chạy: <code>lsof -ti:8765 | xargs kill -9 2>/dev/null || true; python -m http.server 8765</code> rồi mở <code>http://localhost:8765/player.html</code>
         </div>
       </div>
 

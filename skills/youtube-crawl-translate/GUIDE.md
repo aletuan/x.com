@@ -86,7 +86,7 @@ Nguồn: [youtube-transcript-api issues](https://github.com/jdepoix/youtube-tran
 ### Đề xuất cho skill
 
 1. **Chỉ dùng Apify** — youtube-transcript-api, yt-dlp, Invidious thường bị chặn bot
-2. **Video hiển thị:** Dùng `host: youtube-nocookie.com`, mở qua HTTP server (`python -m http.server 8080`) thay vì file://
+2. **Video hiển thị:** Dùng `host: youtube-nocookie.com`, mở qua HTTP server (cổng 8765) thay vì file://
 
 ---
 
@@ -134,10 +134,11 @@ echo '{"video_id":"dQw4w9WgXcQ","video_title":"Never Gonna Give You Up","transcr
 open output/never-gonna-give-you-up-dQw4w9WgXcQ/player.html
 ```
 
-**Hoặc dùng HTTP server (nếu Cursor browser không hỗ trợ file://):**
+**Hoặc dùng HTTP server (nếu Cursor browser không hỗ trợ file://):** Trước khi start, kill process đang chiếm cổng 8765:
 ```bash
-cd output/never-gonna-give-you-up-dQw4w9WgXcQ && python -m http.server 8080
-# Mở http://localhost:8080/player.html
+lsof -ti:8765 | xargs kill -9 2>/dev/null || true
+cd output/never-gonna-give-you-up-dQw4w9WgXcQ && python -m http.server 8765
+# Mở http://localhost:8765/player.html
 ```
 
 ### 7. (Phase 2) Dịch VI — trong khi user xem

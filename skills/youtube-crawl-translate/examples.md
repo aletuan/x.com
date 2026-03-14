@@ -46,11 +46,12 @@ Player load `transcript_vi.json` (nếu có) hoặc `transcript.json` lúc runti
 
 ## Mở player.html
 
-Mở file trực tiếp trong browser: `open output/<slug>-<video_id>/player.html` (macOS) hoặc dùng HTTP server:
+Mở file trực tiếp trong browser: `open output/<slug>-<video_id>/player.html` (macOS) hoặc dùng HTTP server. Trước khi start, kill process đang chiếm cổng 8765:
 
 ```bash
-cd output/<slug>-<video_id> && python -m http.server 8080
-# Mở http://localhost:8080/player.html
+lsof -ti:8765 | xargs kill -9 2>/dev/null || true
+cd output/<slug>-<video_id> && python -m http.server 8765
+# Mở http://localhost:8765/player.html
 ```
 
 ## Transcript
