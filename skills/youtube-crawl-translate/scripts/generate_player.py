@@ -416,7 +416,12 @@ def build_html(
         const s = transcriptData[i];
         if (t >= s.start && t < s.start + s.duration) return i;
       }}
-      return -1;
+      // Gap: show nearest segment (last passed or next upcoming)
+      if (transcriptData.length === 0) return -1;
+      for (let i = transcriptData.length - 1; i >= 0; i--) {{
+        if (t >= transcriptData[i].start) return i;
+      }}
+      return 0;
     }}
 
     const langKey = 'yt-player-lang';
@@ -500,6 +505,7 @@ def build_html(
       document.getElementById('fileProtocolNotice').style.display = 'block';
     }}
     initTheme();
+    updateTranscript(0);
   </script>
 </body>
 </html>'''

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Fetch YouTube transcript (EN + VI) via Apify.
-Uses curious_coder/youtube-transcript-scraper: EN transcript + translateTo=vi.
+Fetch YouTube transcript (EN only) via Apify.
+Chỉ Apify — không fallback web fetch. Chỉ tiếng Anh để có kết quả nhanh nhất.
 Usage: python fetch_transcript.py <video_id>
-Output: JSON to stdout [{text, textVi, start, duration}, ...]
+Output: JSON to stdout [{text, start, duration}, ...]
 """
 import json
 import os
@@ -39,7 +39,7 @@ def _normalize_segments(transcript: list) -> list:
 
 
 def fetch_via_apify(video_id: str) -> list:
-    """Fetch EN + VI transcript via Apify (APIFY_TOKEN required)."""
+    """Fetch EN transcript via Apify only (APIFY_TOKEN required). No fallback."""
     token = os.environ.get("APIFY_TOKEN")
     if not token:
         raise RuntimeError("APIFY_TOKEN not set in .env — required for transcript (YouTube blocks bots)")
@@ -50,8 +50,6 @@ def fetch_via_apify(video_id: str) -> list:
     url = f"https://www.youtube.com/watch?v={video_id}"
     base_input = {"urls": [{"url": url}], "outputFormat": "json", "languages": ["en"]}
 
-    # 1. Fetch English transcript
-    en_segments = None
     for actor_id, run_input in [
         ("curious_coder/youtube-transcript-scraper", base_input),
         ("scrape-creators/best-youtube-transcripts-scraper", {"videoUrls": [url]}),
@@ -64,68 +62,11 @@ def fetch_via_apify(video_id: str) -> list:
             item = items[0]
             transcript = item.get("transcript") or []
             if transcript:
-                en_segments = _normalize_segments(transcript)
-                break
+                return _normalize_segments(transcript)
         except Exception:
             continue
-    if not en_segments:
-        raise RuntimeError("Apify: no actor returned transcript")
 
-    # 2. Fetch Vietnamese: Apify translateTo (curious_coder) or googletrans fallback
-    vi_segments = None
-    try:
-        run = client.actor("curious_coder/youtube-transcript-scraper").call(
-            run_input={**base_input, "translateTo": "vi"}
-        )
-        items = list(client.dataset(run["defaultDatasetId"]).iterate_items())
-        if items:
-            transcript = items[0].get("transcript") or []
-            if transcript:
-                vi_segments = _normalize_segments(transcript)
-    except Exception as e:
-        print(json.dumps({"warn": f"Apify translateTo=vi failed: {e}"}), file=sys.stderr)
-
-    if not vi_segments and en_segments:
-        try:
-            from deep_translator import GoogleTranslator
-            trans = GoogleTranslator(source="auto", target="vi")
-            vi_texts = []
-            max_segments = int(os.environ.get("YT_TRANSLATE_MAX", "2000"))
-            to_translate = en_segments[:max_segments]
-            chunk_size = 30
-            for i in range(0, len(to_translate), chunk_size):
-                chunk = [s["text"][:500] or " " for s in to_translate[i : i + chunk_size]]
-                batch = trans.translate_batch(chunk)
-                vi_texts.extend([(t or "").strip() for t in batch])
-            if len(vi_texts) == len(to_translate):
-                vi_segments = [
-                    {"text": vi_texts[j], "start": s["start"], "duration": s["duration"]}
-                    for j, s in enumerate(to_translate)
-                ]
-        except Exception as e:
-            print(json.dumps({"warn": f"deep-translator fallback failed: {e}", "hint": "pip install deep-translator"}), file=sys.stderr)
-
-    # 3. Merge: align by index first; if counts differ, match by start time
-    def find_vi_text(en_start: float) -> str | None:
-        if not vi_segments:
-            return None
-        for vs in vi_segments:
-            if abs(vs["start"] - en_start) < 0.5:
-                return vs["text"] or None
-        return None
-
-    out = []
-    for i, seg in enumerate(en_segments):
-        row = {"text": seg["text"], "start": seg["start"], "duration": seg["duration"]}
-        vi_text = None
-        if vi_segments and i < len(vi_segments) and vi_segments[i].get("text"):
-            vi_text = vi_segments[i]["text"]
-        if not vi_text:
-            vi_text = find_vi_text(seg["start"])
-        if vi_text:
-            row["textVi"] = vi_text
-        out.append(row)
-    return out
+    raise RuntimeError("Apify: no actor returned transcript")
 
 
 def main():

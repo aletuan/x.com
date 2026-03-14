@@ -119,10 +119,10 @@ Tóm tắt chi tiết với mốc thời gian `[MM:SS]` và các đoạn hội t
 
 ### 5. Generate player
 
-Dùng `output_dir` từ fetch_video_info. Transcript đã có `textVi` từ fetch_transcript:
+Dùng `output_dir` từ fetch_video_info. Transcript từ Apify: `[{text, start, duration}, ...]` (EN only).
 
 ```bash
-echo '{"video_id":"dQw4w9WgXcQ","video_title":"Never Gonna Give You Up","transcript":[{"text":"Hi","start":0,"duration":1,"textVi":"Xin chào"}],"summary_overview":"...","summary_highlights":["[00:00] ..."],"output_dir":"output/never-gonna-give-you-up-dQw4w9WgXcQ"}' | python skills/youtube-crawl-translate/scripts/generate_player.py
+echo '{"video_id":"dQw4w9WgXcQ","video_title":"Never Gonna Give You Up","transcript":[{"text":"Hi","start":0,"duration":1}],"summary_overview":"...","summary_highlights":["[00:00] ..."],"output_dir":"output/never-gonna-give-you-up-dQw4w9WgXcQ"}' | python skills/youtube-crawl-translate/scripts/generate_player.py
 ```
 
 ### 6. Mở player

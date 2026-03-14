@@ -1,13 +1,15 @@
 ---
 name: youtube-crawl-translate
-description: Use when the user wants to crawl a YouTube video, get transcript with Vietnamese translation and summary. Output: HTML player with sync subtitles, dark mode, open in Cursor browser. Triggers on: crawl youtube, youtube transcript, dịch youtube, xem youtube có phụ đề.
+description: Use when the user wants to crawl a YouTube video, get transcript and summary. Output: HTML player with sync subtitles, dark mode, open in Cursor browser. Triggers on: crawl youtube, youtube transcript, dịch youtube, xem youtube có phụ đề.
 ---
 
 # YouTube Crawl Translate
 
 ## Overview
 
-Pipeline để crawl YouTube: lấy transcript (EN + VI qua Apify translateTo), tóm tắt chi tiết, tạo trang HTML với video embed + subtitle sync (toggle EN/VI, mặc định VI) + dark mode. Mở trong Cursor browser.
+Pipeline để crawl YouTube: lấy transcript **chỉ từ Apify** (EN, 1 run — nhanh nhất), tóm tắt chi tiết, tạo trang HTML với video embed + subtitle sync + dark mode. Mở trong Cursor browser.
+
+**Quan trọng:** Chỉ dùng transcript từ Apify. **Không fallback web fetch** — nếu Apify fail thì báo lỗi, không tạo player.
 
 **Output:** `output/{slug}-{video_id}/player.html` — slug từ title (ví dụ: `steve-yegge-ai-agentic-coding-aFsAOu2bgFk`).
 
@@ -21,7 +23,7 @@ Pipeline để crawl YouTube: lấy transcript (EN + VI qua Apify translateTo), 
 |------|-----------|-------------|
 | 1 | Parse video ID từ URL | Regex: `(?:youtube.com/watch\?v=|youtu.be/)([a-zA-Z0-9_-]{11})` |
 | 2 | Fetch video info (title, output_dir) | `python skills/youtube-crawl-translate/scripts/fetch_video_info.py <video_id>` |
-| 3 | Fetch transcript (EN + VI) | `python skills/youtube-crawl-translate/scripts/fetch_transcript.py <video_id>` |
+| 3 | Fetch transcript (EN, Apify only) | `python skills/youtube-crawl-translate/scripts/fetch_transcript.py <video_id>` |
 | 4 | Summarize | Agent tóm tắt chi tiết với mốc thời gian và đoạn hội thoại ý nghĩa |
 | 5 | Generate HTML + open | `generate_player.py` với `output_dir` từ step 2 |
 
@@ -50,7 +52,7 @@ Output: JSON `{"title": "...", "video_id": "...", "slug": "...", "output_dir": "
 
 Dùng `title` cho player, `output_dir` cho generate_player. Nếu không có API key → fallback `output/video-{video_id}`.
 
-### Step 3 — Fetch transcript (EN + VI)
+### Step 3 — Fetch transcript (EN, Apify only)
 
 Chạy từ project root (X.com):
 
@@ -58,9 +60,11 @@ Chạy từ project root (X.com):
 python skills/youtube-crawl-translate/scripts/fetch_transcript.py <video_id>
 ```
 
-Script dùng Apify: lấy transcript tiếng Anh, thử `translateTo=vi` (YouTube built-in). Nếu không có kết quả → fallback `deep-translator` để dịch sang tiếng Việt.
+Script **chỉ dùng Apify** — 1 run lấy transcript tiếng Anh (nhanh nhất). Không fallback web fetch, không dịch VI.
 
-Output: JSON array `[{"text": "...", "textVi": "...", "start": 0.0, "duration": 4.5}, ...]`
+Output: JSON array `[{"text": "...", "start": 0.0, "duration": 4.5}, ...]`
+
+**Nếu Apify fail:** Báo lỗi, dừng pipeline. Không tạo player với transcript giả/fallback.
 
 ### Step 4 — Summarize
 
@@ -103,7 +107,7 @@ Sau đó mở trong browser: `open output/{slug}-{video_id}/player.html` hoặc 
 
 ## Dependencies
 
-- `pip install -r requirements.txt` (apify-client, deep-translator, python-dotenv)
+- `pip install -r requirements.txt` (apify-client, python-dotenv)
 - `.env` với `APIFY_TOKEN` (bắt buộc cho transcript — YouTube chặn bot, chỉ Apify hoạt động ổn định)
 
 ---
@@ -112,9 +116,9 @@ Sau đó mở trong browser: `open output/{slug}-{video_id}/player.html` hoặc 
 
 | Case | Xử lý |
 |------|-------|
-| Video không có transcript | Báo lỗi, bỏ qua; vẫn tạo player với summary |
+| Apify fail / timeout | Báo lỗi, dừng pipeline. **Không** fallback web fetch |
+| Video không có transcript | Báo lỗi — Apify không trả về transcript |
 | APIFY_TOKEN thiếu | Báo lỗi — cần token để lấy transcript (YouTube chặn bot) |
-| Transcript ngôn ngữ khác | Apify translateTo=vi; nếu video không có phụ đề gốc → fallback tiếng Anh |
 
 ---
 
