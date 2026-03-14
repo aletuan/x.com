@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why MCP really is a big deal | Model Context Protocol with Tim Berglund</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --highlight: #eff6ff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --highlight: #1e3a5f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --accent: #60a5fa;
+        --border: #334155;
+        --highlight: #1e3a5f;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0 2rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 1.5rem 0; }
+
+    @media (min-width: 1600px) {
+      .container { max-width: 1440px; }
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .theme-toggle {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .theme-toggle .icon-moon { display: none; }
+    .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    .theme-toggle:hover {
+      background: var(--highlight);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .watch-row {
+      display: grid;
+      grid-template-columns: 55fr 45fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 767px) {
+      body { padding: 0 1rem; }
+      .watch-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-notice {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .file-notice code {
+      background: rgba(255,255,255,0.2);
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+    }
+
+    .transcript-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .transcript-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem 0;
+      color: var(--text);
+    }
+
+    .transcript-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .lang-chip {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .lang-chip:hover {
+      background: var(--highlight);
+    }
+
+    .lang-chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .lang-chip:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .transcript-area {
+      flex: 1;
+      min-height: 6rem;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .transcript-line {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      line-height: 1.5;
+    }
+
+    .transcript-line.dim {
+      opacity: 0.6;
+    }
+
+    .transcript-line.current {
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .summary-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      color: var(--text);
+    }
+
+    .summary-text {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .summary-overview {
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+      width: 100%;
+    }
+
+    .summary-highlights {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    .summary-highlights li {
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-ts {
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .highlight-ts:hover {
+      color: var(--accent);
+    }
+
+    .empty {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Why MCP really is a big deal | Model Context Protocol with Tim Berglund</h1>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="watch-row">
+      <div class="video-wrap">
+        <div id="player"></div>
+        <div id="fileProtocolNotice" class="file-notice" style="display:none">
+          Video không hiển thị khi mở file trực tiếp. Chạy: <code>lsof -ti:8765 | xargs kill -9 2>/dev/null || true; python -m http.server 8765</code> rồi mở <code>http://localhost:8765/player.html</code>
+        </div>
+      </div>
+
+      <div class="transcript-card">
+        <h2>Transcript (sync)</h2>
+        <div class="transcript-header">
+          <button class="lang-chip active" id="langVi" aria-label="Xem phụ đề tiếng Việt">VI</button>
+          <button class="lang-chip" id="langEn" aria-label="View English subtitles">EN</button>
+        </div>
+        <div class="transcript-area">
+          <div class="transcript-line dim" id="transcriptPrev">—</div>
+          <div class="transcript-line current" id="transcriptCurrent">—</div>
+          <div class="transcript-line dim" id="transcriptNext">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h2>Tóm tắt</h2>
+      <div class="summary-text" id="summary">
+        <div class="summary-overview">Tim Berglund explains why Model Context Protocol (MCP) is a big deal for building agentic AI applications professionally. Most people focus on enhancing desktop apps with AI, but MCP offers a broader vision: a standard way for LLMs to access tools (actions) and resources (data) beyond the foundation model. He walks through how LLMs work: prompt in, response out — but agentic AI needs to invoke tools and fetch external data (files, databases, Kafka topics). MCP architecture: a host application uses an MCP client to connect to MCP servers. Each server exposes tools, resources, and prompts in a discoverable way. Connection can be stdio or HTTP/SSE with JSON-RPC. Example: an appointment service needs calendar integration, restaurant/coffee shop listings — instead of baking all that into the agent, MCP lets you plug in servers. Workflow: user prompt → client asks server for capabilities → gets resource list → LLM decides which resources to fetch → client fetches → LLM interprets. For tools, foundation model APIs accept tool descriptions; the LLM recommends invocations but the client executes (no Skynet). Key benefits: pluggability, discoverability, composability — servers can be clients of other servers (e.g. Confluent MCP for Kafka). MCP is a gateway to true agentic AI in the enterprise.</div>
+        <h3 style="font-size:0.9rem;font-weight:600;margin:0 0 0.5rem 0;">Các phần đáng chú ý</h3><ul class="summary-highlights"><li><span class="highlight-ts" data-seek="0" role="button" tabindex="0"><strong>[00:00]</strong> Model Context Protocol intro — most people miss the point</span></li><li><span class="highlight-ts" data-seek="31" role="button" tabindex="0"><strong>[00:31]</strong> How LLMs work: prompt in, words out — agentic AI needs tools + resources</span></li><li><span class="highlight-ts" data-seek="78" role="button" tabindex="0"><strong>[01:18]</strong> Resources: files, databases, Kafka topics — data the agent needs</span></li><li><span class="highlight-ts" data-seek="137" role="button" tabindex="0"><strong>[02:17]</strong> MCP architecture: host app, MCP client, MCP server (tools, resources, prompts)</span></li><li><span class="highlight-ts" data-seek="162" role="button" tabindex="0"><strong>[02:42]</strong> Connection: stdio or HTTP/SSE, JSON-RPC messages</span></li><li><span class="highlight-ts" data-seek="281" role="button" tabindex="0"><strong>[04:41]</strong> Example: appointment service — calendar, coffee shops, restaurants</span></li><li><span class="highlight-ts" data-seek="361" role="button" tabindex="0"><strong>[06:01]</strong> MCP workflow: capabilities → list resources → LLM picks → client fetches</span></li><li><span class="highlight-ts" data-seek="508" role="button" tabindex="0"><strong>[08:28]</strong> Tools: LLM APIs accept tool schemas, return invocation recommendations</span></li><li><span class="highlight-ts" data-seek="564" role="button" tabindex="0"><strong>[09:24]</strong> Foundation models recommend, client executes — not Skynet</span></li><li><span class="highlight-ts" data-seek="597" role="button" tabindex="0"><strong>[09:57]</strong> Pluggability, discoverability, composability — server can be client</span></li><li><span class="highlight-ts" data-seek="638" role="button" tabindex="0"><strong>[10:38]</strong> MCP = gateway to true agentic AI in enterprise</span></li></ul>
+        
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let transcriptData = [{"text": "Model Context Protocol.", "start": 0.248, "duration": 1.531}, {"text": "It really is a big deal,", "start": 2.0, "duration": 1.26}, {"text": "but I think most people", "start": 3.29, "duration": 1.17}, {"text": "are missing the point here.", "start": 4.47, "duration": 1.84}, {"text": "Everybody's talking about", "start": 6.57, "duration": 0.93}, {"text": "enhancing desktop applications", "start": 7.5, "duration": 1.99}, {"text": "with agentic functionality.", "start": 9.49, "duration": 1.6}, {"text": "But if you want to write", "start": 11.309, "duration": 0.971}, {"text": "agentic AI applications", "start": 12.323, "duration": 1.467}, {"text": "at work", "start": 13.86, "duration": 0.74}, {"text": "like a professional", "start": 14.799, "duration": 1.341}, {"text": "you're going to needa broader vision.", "start": 16.23, "duration": 2.23}, {"text": "In order for me togive you that vision,", "start": 18.67, "duration": 1.37}, {"text": "I'm going to need toexplain to you how it works.", "start": 20.23, "duration": 2.709}, {"text": "And, here's a hint:", "start": 23.11, "duration": 1.009}, {"text": "comparing it to the USB-C", "start": 24.439, "duration": 1.59}, {"text": "of AI applications", "start": 26.059, "duration": 1.481}, {"text": "is probably not going to be helpful.", "start": 27.559, "duration": 1.921}, {"text": "Didn't help me,", "start": 29.5, "duration": 0.709}, {"text": "I don't think it's going to help you.", "start": 30.46, "duration": 1.079}, {"text": "Now, let's start by remembering", "start": 31.639, "duration": 2.501}, {"text": "how an LLM basically works", "start": 34.299, "duration": 2.231}, {"text": "from an outside perspective, right?", "start": 36.54, "duration": 1.61}, {"text": "You have a prompt", "start": 38.35, "duration": 0.84}, {"text": "and you send that into an LLM.", "start": 39.25, "duration": 2.29}, {"text": "Out of that LLM, you get a response.", "start": 41.74, "duration": 3.249}, {"text": "Now, there are two problems here.", "start": 45.07, "duration": 2.0}, {"text": "That response is just words.", "start": 47.099, "duration": 1.621}, {"text": "And if words are what youwant, you're doing fine.", "start": 48.75, "duration": 2.879}, {"text": "But what if you want to do something?", "start": 51.9, "duration": 1.859}, {"text": "That's what agentic AI is all about.", "start": 53.769, "duration": 1.781}, {"text": "You want to causeeffects out in the world.", "start": 55.55, "duration": 2.65}, {"text": "The AI needs to be ableto take those actions", "start": 58.43, "duration": 2.739}, {"text": "or invoke what we call tools.", "start": 61.41, "duration": 3.18}, {"text": "It also needs", "start": 64.76, "duration": 1.769}, {"text": "more up-to-date information", "start": 66.849, "duration": 2.13}, {"text": "or maybe just broader information", "start": 68.98, "duration": 1.799}, {"text": "than what's available in that", "start": 71.01, "duration": 1.399}, {"text": "core foundation model.", "start": 72.41, "duration": 1.63}, {"text": "And that's great.", "start": 74.23, "duration": 0.64}, {"text": "This guy is here as an API", "start": 74.87, "duration": 1.61}, {"text": "out on the internet.", "start": 77.0, "duration": 0.95}, {"text": "You might have wrappedthat with the so-called", "start": 78.12, "duration": 4.66}, {"text": "Retrieval AugmentedGeneration pattern.", "start": 82.78, "duration": 2.1}, {"text": "Some people say RAG is old and busted", "start": 85.09, "duration": 1.929}, {"text": "and yesterday's news.", "start": 87.02, "duration": 1.09}, {"text": "In fact, in enterprise context,", "start": 88.17, "duration": 2.61}, {"text": "you may well be using this pattern", "start": 90.78, "duration": 1.59}, {"text": "and there's not a thing inthe world wrong with that", "start": 92.37, "duration": 1.809}, {"text": "to bring the data of the enterprise", "start": 94.48, "duration": 2.19}, {"text": "into the context thatthe LLM can work with.", "start": 96.69, "duration": 2.629}, {"text": "Whether RAG is there or not", "start": 99.75, "duration": 1.52}, {"text": "doesn't really matter.", "start": 101.28, "duration": 1.05}, {"text": "The fact is there aregoing to be other resources", "start": 102.599, "duration": 3.26}, {"text": "in our world that we're going to need", "start": 106.109, "duration": 4.031}, {"text": "to get into the prompt,", "start": 110.2, "duration": 2.44}, {"text": "into the scope of whatthe model can deal with.", "start": 112.65, "duration": 3.079}, {"text": "And these can be anything.", "start": 116.02, "duration": 2.03}, {"text": "Files.", "start": 118.07, "duration": 0.54}, {"text": "It could be binaries.", "start": 118.61, "duration": 0.92}, {"text": "You could have a database out there.", "start": 119.539, "duration": 1.971}, {"text": "You could have thingshappening in a Kafka topic.", "start": 121.51, "duration": 2.85}, {"text": "That's even a pretty likely", "start": 124.76, "duration": 0.95}, {"text": "source of resources.", "start": 125.71, "duration": 0.989}, {"text": "So there's just thisdata out in the world", "start": 126.96, "duration": 2.149}, {"text": "that the agent needs to be aware of.", "start": 129.33, "duration": 2.69}, {"text": "These are two things that arejust not going to be present", "start": 132.04, "duration": 2.97}, {"text": "in the base foundation model.", "start": 135.02, "duration": 2.33}, {"text": "Now, let's talk about", "start": 137.44, "duration": 0.96}, {"text": "a little bit of architecture.", "start": 138.41, "duration": 1.029}, {"text": "What we're doing isbuilding an agent.", "start": 139.45, "duration": 2.53}, {"text": "You could think ofit as a microservice.", "start": 142.029, "duration": 2.047}, {"text": "There's nothing particularlyexotic about this.", "start": 144.14, "duration": 2.4}, {"text": "But, in MCP terms, this is called", "start": 146.65, "duration": 2.81}, {"text": "the host application.", "start": 149.77, "duration": 2.2}, {"text": "And the host application uses", "start": 152.02, "duration": 1.95}, {"text": "the MCP client library", "start": 153.98, "duration": 2.689}, {"text": "to create an instanceof a client in there.", "start": 156.67, "duration": 4.189}, {"text": "Out here, we're goingto create an MCP server.", "start": 160.99, "duration": 3.64}, {"text": "This may be a serverthat already exists", "start": 164.76, "duration": 2.58}, {"text": "that somebody else has built", "start": 167.34, "duration": 1.22}, {"text": "that we want to take advantage of", "start": 168.84, "duration": 1.609}, {"text": "to bring agentic functionalityinto our service,", "start": 170.45, "duration": 3.409}, {"text": "or this could be a server thatwe ourselves are creating.", "start": 174.05, "duration": 3.42}, {"text": "Inside the server, what do we have?", "start": 177.53, "duration": 2.34}, {"text": "Well, we've got access totools, resources, prompts,", "start": 179.879, "duration": 4.671}, {"text": "capabilities that theserver makes available", "start": 184.7, "duration": 2.51}, {"text": "and even describesto the outside world.", "start": 187.43, "duration": 2.69}, {"text": "So, this is a server process.", "start": 190.12, "duration": 1.43}, {"text": "There's a URL, port, etc,", "start": 191.55, "duration": 2.17}, {"text": "and a variety of well-knownRESTful endpoints", "start": 193.88, "duration": 3.249}, {"text": "described by the MCP specification", "start": 198.219, "duration": 2.311}, {"text": "that are implemented by this server,", "start": 200.75, "duration": 1.52}, {"text": "including this capabilities list", "start": 202.3, "duration": 1.73}, {"text": "that tells the world,", "start": 204.08, "duration": 1.68}, {"text": "tells the host application,", "start": 205.79, "duration": 1.25}, {"text": "tells the client,", "start": 207.04, "duration": 0.8}, {"text": "whether there are tools present,", "start": 208.33, "duration": 1.979}, {"text": "what sort of resourcesmight be available,", "start": 210.33, "duration": 2.11}, {"text": "what prompts it has, etc, etc.", "start": 212.599, "duration": 1.991}, {"text": "The connection betweenthese two things,", "start": 214.66, "duration": 2.04}, {"text": "between client and server,", "start": 217.02, "duration": 1.73}, {"text": "can be two things.", "start": 218.76, "duration": 0.95}, {"text": "It can be, interestingly,standard IO.", "start": 219.78, "duration": 2.3}, {"text": "So if this is a process", "start": 222.16, "duration": 1.09}, {"text": "running locally on my laptop", "start": 223.25, "duration": 1.35}, {"text": "and I've got some", "start": 224.6, "duration": 1.269}, {"text": "LLM host application, like say,", "start": 225.95, "duration": 1.54}, {"text": "Claude Desktop or something,", "start": 227.49, "duration": 1.409}, {"text": "that's something that showsup in a lot of the examples,", "start": 229.13, "duration": 1.75}, {"text": "they can just communicate", "start": 231.12, "duration": 1.099}, {"text": "via pipes and standard IO.", "start": 232.24, "duration": 1.49}, {"text": "We don't want that.", "start": 233.75, "duration": 1.38}, {"text": "That's not kind of whatwe're interested in", "start": 235.14, "duration": 1.78}, {"text": "in the model I'm tryingto give you here.", "start": 236.97, "duration": 2.2}, {"text": "So, we also have as an option", "start": 239.37, "duration": 2.33}, {"text": "HTTP and Server Sent Events,", "start": 242.23, "duration": 3.27}, {"text": "and the messages being exchanged here", "start": 245.73, "duration": 2.27}, {"text": "are going to be in JSON RPC.", "start": 248.03, "duration": 3.429}, {"text": "Now, I will not apologize", "start": 251.469, "duration": 2.161}, {"text": "for those technology choices", "start": 253.673, "duration": 1.127}, {"text": "because I didn't make them.", "start": 254.8, "duration": 1.349}, {"text": "Yes, they have raised", "start": 256.209, "duration": 0.89}, {"text": "the occasional eyebrow,", "start": 257.11, "duration": 1.06}, {"text": "but this is what we've got.", "start": 258.45, "duration": 1.36}, {"text": "There's a little bitof sort of protocol", "start": 259.95, "duration": 2.04}, {"text": "for a client announcingitself to the server", "start": 262.25, "duration": 2.839}, {"text": "and then establishing communications.", "start": 265.09, "duration": 1.769}, {"text": "There are ways for servers", "start": 267.12, "duration": 1.259}, {"text": "to send asynchronousnotifications back to the client.", "start": 268.379, "duration": 3.521}, {"text": "We'll come back to that in a minute.", "start": 271.92, "duration": 1.249}, {"text": "So, a relatively rich setup here", "start": 273.4, "duration": 2.23}, {"text": "for client and server to talk.", "start": 275.63, "duration": 2.109}, {"text": "But what does it do?", "start": 277.8, "duration": 1.893}, {"text": "Let's walk through an example.", "start": 280.2, "duration": 1.57}, {"text": "I think that would be helpful.", "start": 281.78, "duration": 0.97}, {"text": "Let's say we're building a service", "start": 282.88, "duration": 2.409}, {"text": "for making", "start": 285.469, "duration": 0.921}, {"text": "appointments.", "start": 287.459, "duration": 0.59}, {"text": "Sort of generalizedmeet with somebody,", "start": 288.049, "duration": 2.831}, {"text": "some group of people at some place,", "start": 290.89, "duration": 1.87}, {"text": "and not necessarily", "start": 293.0, "duration": 0.99}, {"text": "a conference room in the office,", "start": 294.02, "duration": 1.39}, {"text": "but maybe we're getting coffee.", "start": 295.72, "duration": 1.21}, {"text": "Maybe we're getting breakfast.", "start": 296.93, "duration": 1.109}, {"text": "Maybe it's a romanticdinner with your spouse.", "start": 298.04, "duration": 3.58}, {"text": "I've just described a numberof tools and resources", "start": 301.88, "duration": 2.65}, {"text": "that are necessaryto make that happen.", "start": 304.53, "duration": 1.479}, {"text": "Let's think about that.", "start": 306.049, "duration": 0.851}, {"text": "I need to create a calendar invite.", "start": 306.95, "duration": 2.31}, {"text": "I need some kind ofcalendar API integration.", "start": 309.3, "duration": 2.799}, {"text": "I need to see at leastwhen my calendar is free,", "start": 312.46, "duration": 2.23}, {"text": "I might need to make assumptionsabout the counterparty.", "start": 314.69, "duration": 2.0}, {"text": "Maybe I can get access totheir calendar as well,", "start": 317.15, "duration": 2.239}, {"text": "depending on what I'vegot permissions for.", "start": 319.65, "duration": 1.94}, {"text": "That would be kind of cool.", "start": 321.599, "duration": 0.901}, {"text": "Places I might meet.", "start": 322.809, "duration": 2.301}, {"text": "I suppose knowing about the calendar", "start": 325.11, "duration": 1.85}, {"text": "might better fit under Resource.", "start": 326.96, "duration": 1.32}, {"text": "Tool would be making the appointment,", "start": 328.57, "duration": 2.21}, {"text": "maybe making a reservationat a restaurant,", "start": 330.78, "duration": 2.79}, {"text": "knowing what restaurants,", "start": 333.71, "duration": 1.5}, {"text": "what coffee shops,", "start": 335.23, "duration": 0.979}, {"text": "what breakfast jointsare in the area.", "start": 336.21, "duration": 2.43}, {"text": "These are resources thatI wanna make available", "start": 338.679, "duration": 2.69}, {"text": "to my agentic application.", "start": 341.379, "duration": 1.881}, {"text": "I could just do all that stuff,", "start": 343.33, "duration": 2.019}, {"text": "do the calendar integration,", "start": 345.38, "duration": 1.21}, {"text": "go talk to Yelp", "start": 346.59, "duration": 2.139}, {"text": "or whatever APIs I wanna do", "start": 348.73, "duration": 1.369}, {"text": "and bake that into my agent,", "start": 350.11, "duration": 1.679}, {"text": "but then it's locked there", "start": 351.849, "duration": 1.191}, {"text": "and nobody else can get at that", "start": 353.17, "duration": 1.93}, {"text": "unless they've got that code.", "start": 355.1, "duration": 1.499}, {"text": "So the whole idea of MCP", "start": 356.599, "duration": 1.471}, {"text": "is I'm putting those things in here.", "start": 358.41, "duration": 2.46}, {"text": "Let's go through a workflow", "start": 361.18, "duration": 1.83}, {"text": "of how this might work.", "start": 363.05, "duration": 1.15}, {"text": "A prompt comes in, andthat prompt from the user", "start": 364.33, "duration": 3.83}, {"text": "and that's the actual input", "start": 368.38, "duration": 1.6}, {"text": "and it's something like,", "start": 370.02, "duration": 0.76}, {"text": "\"I wanna have coffeewith Peter next week.\"", "start": 370.889, "duration": 1.99}, {"text": "Okay, well, you justask the LLM, it's like,", "start": 373.343, "duration": 2.597}, {"text": "\"Who's Peter? Where's coffee?I can't help you with this.\"", "start": 375.96, "duration": 3.21}, {"text": "But here", "start": 379.25, "duration": 0.84}, {"text": "we can start to do better.", "start": 380.22, "duration": 2.17}, {"text": "This application,the host, the client,", "start": 382.4, "duration": 3.14}, {"text": "whatever you wanna call it, can say,", "start": 385.54, "duration": 1.11}, {"text": "\"What capabilities do you have?\"", "start": 386.65, "duration": 1.94}, {"text": "It knows the URL of this agent.", "start": 388.59, "duration": 2.41}, {"text": "You've had to tell itand maybe very tactically", "start": 391.009, "duration": 2.111}, {"text": "there's a properties file somewhere", "start": 393.12, "duration": 1.52}, {"text": "with a little list ofthe URLs of servers", "start": 394.64, "duration": 2.76}, {"text": "that are registered with the agent.", "start": 397.43, "duration": 1.57}, {"text": "And so it can", "start": 399.22, "duration": 0.879}, {"text": "interrogate the capabilities and see,", "start": 400.12, "duration": 1.84}, {"text": "\"Oh, you have resources.", "start": 401.97, "duration": 1.79}, {"text": "Okay.", "start": 403.94, "duration": 0.45}, {"text": "Let me get a list of your resources\"", "start": 404.71, "duration": 1.84}, {"text": "which will include textdescriptions of each resource.", "start": 406.639, "duration": 2.98}, {"text": "And it's important", "start": 409.65, "duration": 0.8}, {"text": "when writing the server,", "start": 410.49, "duration": 0.889}, {"text": "when building a server", "start": 411.38, "duration": 0.83}, {"text": "to make those good.", "start": 412.529, "duration": 0.911}, {"text": "I can take my prompt.", "start": 413.51, "duration": 1.039}, {"text": "I don't know, I'm just a poorlittle agentic application.", "start": 414.85, "duration": 3.48}, {"text": "I don't know how tofigure out from the input", "start": 418.67, "duration": 2.559}, {"text": "whether I need anyof those resources,", "start": 421.25, "duration": 2.05}, {"text": "but I can ask my model.", "start": 424.07, "duration": 1.38}, {"text": "I can say,", "start": 425.88, "duration": 0.51}, {"text": "\"You know what, on pass number one,", "start": 426.39, "duration": 1.839}, {"text": "I'll say, here is what my user said.", "start": 428.37, "duration": 3.569}, {"text": "Here is a list of resources:", "start": 432.06, "duration": 3.87}, {"text": "resource one, resourcetwo, resource three.", "start": 436.05, "duration": 2.12}, {"text": "Do I need these?\"", "start": 438.24, "duration": 2.09}, {"text": "We are telling the LLM,", "start": 440.45, "duration": 2.229}, {"text": "\"I got this request.", "start": 442.719, "duration": 1.11}, {"text": "I have things like this.", "start": 444.2, "duration": 1.59}, {"text": "Do you think I should goget anything from them?\"", "start": 446.09, "duration": 2.41}, {"text": "We submit this as aprompt up to our LLM", "start": 448.99, "duration": 3.91}, {"text": "and it tells us in return,", "start": 453.14, "duration": 1.51}, {"text": "\"Yes, you need resource two.", "start": 454.86, "duration": 2.51}, {"text": "That resource two, that listof coffee shops in the area,", "start": 457.65, "duration": 3.18}, {"text": "that looks super interesting.", "start": 461.05, "duration": 1.34}, {"text": "Please give me that.\"", "start": 462.48, "duration": 0.89}, {"text": "And so now my client says,", "start": 463.389, "duration": 1.92}, {"text": "\"Oh, resource two?", "start": 465.349, "duration": 1.131}, {"text": "I know where that is.", "start": 466.699, "duration": 1.821}, {"text": "I'll just go ask my MCP server", "start": 468.539, "duration": 2.451}, {"text": "for the details", "start": 471.12, "duration": 1.01}, {"text": "of resource two.\"", "start": 472.14, "duration": 1.17}, {"text": "Maybe passing someparameters, maybe not.", "start": 473.34, "duration": 1.95}, {"text": "And then I will get that text back", "start": 475.7, "duration": 3.01}, {"text": "or whatever that data is.", "start": 478.71, "duration": 1.44}, {"text": "I'll get that back andserialize it as text", "start": 480.17, "duration": 3.26}, {"text": "or otherwise attachit to my next prompt.", "start": 483.63, "duration": 4.229}, {"text": "Where I say, again,", "start": 488.31, "duration": 1.51}, {"text": "\"Here is my user prompt.", "start": 490.08, "duration": 2.58}, {"text": "And now here is the resource data.\"", "start": 493.13, "duration": 3.01}, {"text": "And I provide that data in detail", "start": 496.46, "duration": 2.379}, {"text": "and then ask,", "start": 499.33, "duration": 1.05}, {"text": "\"What should I do as a result?\"", "start": 500.469, "duration": 2.781}, {"text": "That's how I get the model", "start": 503.539, "duration": 1.601}, {"text": "to help me interpret the resources.", "start": 505.23, "duration": 1.6}, {"text": "How do I interpret the tools?", "start": 507.19, "duration": 1.279}, {"text": "Well, the good news is,", "start": 508.5, "duration": 1.18}, {"text": "so this call is gonna go", "start": 510.06, "duration": 2.05}, {"text": "back to that same LLM", "start": 512.7, "duration": 2.05}, {"text": "and the APIs now", "start": 515.46, "duration": 2.18}, {"text": "for the foundation models,", "start": 517.659, "duration": 1.37}, {"text": "the biggies,", "start": 519.289, "duration": 0.611}, {"text": "I can actually put thedescription of the tools", "start": 519.99, "duration": 3.189}, {"text": "in the API call.", "start": 523.4, "duration": 1.08}, {"text": "I don't even have to messwith the prompt or anything.", "start": 524.74, "duration": 1.829}, {"text": "It's structured datathat goes in there,", "start": 526.81, "duration": 1.91}, {"text": "the name of the tool, the URL,", "start": 528.72, "duration": 1.483}, {"text": "the schema of theparameters, all that.", "start": 530.216, "duration": 2.274}, {"text": "And in the reply, that tells me", "start": 532.639, "duration": 3.231}, {"text": "if there's a tool Ishould invoke, it'll say,", "start": 535.91, "duration": 1.93}, {"text": "\"Yes, invoke this tool,", "start": 537.84, "duration": 1.749}, {"text": "pass these parameters.\"", "start": 539.59, "duration": 1.11}, {"text": "I don't have to write any of the code", "start": 541.1, "duration": 1.37}, {"text": "to parse any of the stuff out", "start": 542.47, "duration": 1.1}, {"text": "because I don't know how to do that.", "start": 543.72, "duration": 1.77}, {"text": "That's all very difficult stuff", "start": 545.5, "duration": 1.27}, {"text": "that LLMs are wonderful at.", "start": 546.77, "duration": 1.85}, {"text": "And those APIs will help mewith that tool invocation.", "start": 548.929, "duration": 4.081}, {"text": "They won't call them, okay?", "start": 553.299, "duration": 1.811}, {"text": "ChatGPT, Claude, Gemini,", "start": 555.11, "duration": 1.82}, {"text": "they're not gonna go invokesome URL inside my network", "start": 557.15, "duration": 3.56}, {"text": "and go do something.", "start": 560.71, "duration": 0.99}, {"text": "You know, that's a littlebit Skynet-y there, right?", "start": 561.9, "duration": 1.819}, {"text": "But they're gonna tell me,", "start": 563.91, "duration": 1.039}, {"text": "\"I recommend you do this.\"", "start": 565.16, "duration": 1.1}, {"text": "And now my client code gets to", "start": 566.27, "duration": 1.72}, {"text": "make the decision,", "start": 567.99, "duration": 0.79}, {"text": "maybe asking the userfirst, maybe not,", "start": 569.08, "duration": 2.6}, {"text": "to go call that tool and causethe effect out in the world.", "start": 571.96, "duration": 3.119}, {"text": "So you can kind ofsee how this works.", "start": 575.08, "duration": 2.12}, {"text": "So instead of just bakingall this code in here,", "start": 577.23, "duration": 2.719}, {"text": "we have this that is nowpluggable and discoverable.", "start": 580.12, "duration": 4.3}, {"text": "I don't need to know very muchabout what this tool does.", "start": 584.8, "duration": 2.97}, {"text": "I just plug it in.", "start": 588.07, "duration": 0.9}, {"text": "I just say, \"Hey, you havethis agent registered with you,", "start": 588.97, "duration": 2.679}, {"text": "go find out about it,go through this process,", "start": 591.66, "duration": 2.88}, {"text": "and you get its functionality.\"", "start": 594.85, "duration": 2.04}, {"text": "They're also composable.", "start": 597.12, "duration": 1.48}, {"text": "The server itself can be a client.", "start": 598.75, "duration": 2.63}, {"text": "So, let's say I had some data source", "start": 601.59, "duration": 2.57}, {"text": "that I knew was in Kafka out there,", "start": 604.179, "duration": 2.351}, {"text": "and I don't wanna go writea bunch of extra Kafka code", "start": 606.54, "duration": 3.75}, {"text": "to go do that in here.", "start": 610.299, "duration": 1.3}, {"text": "Well, I can just then go use,", "start": 611.76, "duration": 1.7}, {"text": "let's say the Confluent MCP server", "start": 613.52, "duration": 2.48}, {"text": "and connect to that topic", "start": 616.25, "duration": 1.849}, {"text": "or even do actuallya bunch more stuff.", "start": 618.11, "duration": 1.91}, {"text": "It's a pretty cool MCP server.", "start": 620.28, "duration": 1.34}, {"text": "If Kafka and Confluentare a part of your life,", "start": 621.86, "duration": 2.779}, {"text": "it's good stuff.", "start": 624.639, "duration": 0.621}, {"text": "But if I just need toconsume from a Kafka topic,", "start": 625.639, "duration": 1.93}, {"text": "this server itself gets to bea client of another server.", "start": 627.589, "duration": 3.761}, {"text": "So I've got pluggability,discoverability,", "start": 631.35, "duration": 2.47}, {"text": "composability,", "start": 633.87, "duration": 1.07}, {"text": "huge benefits.", "start": 635.52, "duration": 1.13}, {"text": "These are things that we want", "start": 636.66, "duration": 1.03}, {"text": "in our code.", "start": 638.03, "duration": 0.6}, {"text": "So, I hope you can see now", "start": 638.74, "duration": 1.839}, {"text": "how this really is a big deal.", "start": 640.59, "duration": 2.54}, {"text": "There's a broader vision here", "start": 643.38, "duration": 1.829}, {"text": "than just enhancinga desktop application", "start": 645.44, "duration": 2.98}, {"text": "with some way to helpme write code locally.", "start": 648.45, "duration": 3.29}, {"text": "This is really a gateway", "start": 652.03, "duration": 1.38}, {"text": "to building true agentic AI", "start": 653.41, "duration": 2.36}, {"text": "in the enterprise,", "start": 656.33, "duration": 0.77}, {"text": "in a professional setting.", "start": 657.1, "duration": 1.67}, {"text": "That is really cool stuff.", "start": 658.969, "duration": 1.691}, {"text": "So check it out, get started,links below with great help.", "start": 660.82, "duration": 3.889}, {"text": "And as always, let me know inthe comments what you build.", "start": 664.949, "duration": 2.641}, {"text": "Thanks.", "start": 667.76, "duration": 0.45}];
+    let player;
+    let pollInterval;
+
+    async function loadTranscriptAtRuntime() {
+      try {
+        const r = await fetch('transcript_vi.json');
+        if (r.ok) {
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) { transcriptData = data; return; }
+        }
+      } catch (e) {}
+      try {
+        const r = await fetch('transcript.json');
+        if (r.ok) {
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) { transcriptData = data; return; }
+        }
+      } catch (e) {}
+    }
+    loadTranscriptAtRuntime();
+
+    function initTheme() {
+      const saved = localStorage.getItem('yt-player-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('yt-player-theme', next);
+    });
+
+    const SYNC_OFFSET = 2;
+    function findSegmentIndex(time) {
+      const t = time + SYNC_OFFSET;
+      for (let i = 0; i < transcriptData.length; i++) {
+        const s = transcriptData[i];
+        if (t >= s.start && t < s.start + s.duration) return i;
+      }
+      // Gap: show nearest segment (last passed or next upcoming)
+      if (transcriptData.length === 0) return -1;
+      for (let i = transcriptData.length - 1; i >= 0; i--) {
+        if (t >= transcriptData[i].start) return i;
+      }
+      return 0;
+    }
+
+    const langKey = 'yt-player-lang';
+    const savedLang = localStorage.getItem(langKey) || 'vi';
+    let showVi = savedLang === 'vi';
+    document.getElementById('langVi').classList.toggle('active', showVi);
+    document.getElementById('langEn').classList.toggle('active', !showVi);
+
+    document.getElementById('langVi').addEventListener('click', () => {
+      showVi = true;
+      document.getElementById('langVi').classList.add('active');
+      document.getElementById('langEn').classList.remove('active');
+      localStorage.setItem(langKey, 'vi');
+      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+    });
+    document.getElementById('langEn').addEventListener('click', () => {
+      showVi = false;
+      document.getElementById('langEn').classList.add('active');
+      document.getElementById('langVi').classList.remove('active');
+      localStorage.setItem(langKey, 'en');
+      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+    });
+
+    function getSegmentText(seg) {
+      const text = seg.text || '—';
+      const textVi = seg.textVi || '';
+      return showVi && textVi ? textVi : text;
+    }
+
+    function updateTranscript(time) {
+      const idx = findSegmentIndex(time);
+      const prevEl = document.getElementById('transcriptPrev');
+      const curEl = document.getElementById('transcriptCurrent');
+      const nextEl = document.getElementById('transcriptNext');
+      if (idx >= 0) {
+        curEl.textContent = getSegmentText(transcriptData[idx]);
+        prevEl.textContent = idx > 0 ? getSegmentText(transcriptData[idx - 1]) : '—';
+        nextEl.textContent = idx < transcriptData.length - 1 ? getSegmentText(transcriptData[idx + 1]) : '—';
+      } else {
+        prevEl.textContent = '—';
+        curEl.textContent = '—';
+        nextEl.textContent = '—';
+      }
+    }
+
+    document.querySelectorAll('.highlight-ts').forEach(el => {
+      el.addEventListener('click', () => {
+        const sec = parseFloat(el.getAttribute('data-seek'));
+        if (player && player.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const sec = parseFloat(el.getAttribute('data-seek'));
+          if (player && player.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+        }
+      });
+    });
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'FLpS7OfD5-s',
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: { autoplay: 0 },
+        events: {
+          onReady: function() {
+            pollInterval = setInterval(function() {
+              if (player && player.getCurrentTime) {
+                const t = player.getCurrentTime();
+                if (typeof t === 'number' && !isNaN(t)) updateTranscript(t);
+              }
+            }, 300);
+          }
+        }
+      });
+    }
+
+    if (window.location.protocol === 'file:') {
+      document.getElementById('fileProtocolNotice').style.display = 'block';
+    }
+    initTheme();
+    updateTranscript(0);
+  </script>
+</body>
+</html>

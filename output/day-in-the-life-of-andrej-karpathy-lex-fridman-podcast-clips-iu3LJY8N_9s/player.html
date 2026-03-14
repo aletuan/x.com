@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day in the life of Andrej Karpathy | Lex Fridman Podcast Clips</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --border: #e2e8f0;
+      --highlight: #eff6ff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #60a5fa;
+      --border: #334155;
+      --highlight: #1e3a5f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --accent: #60a5fa;
+        --border: #334155;
+        --highlight: #1e3a5f;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0 2rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 1.5rem 0; }
+
+    @media (min-width: 1600px) {
+      .container { max-width: 1440px; }
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .theme-toggle {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .theme-toggle .icon-moon { display: none; }
+    .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
+    .theme-toggle:hover {
+      background: var(--highlight);
+    }
+
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .watch-row {
+      display: grid;
+      grid-template-columns: 55fr 45fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 767px) {
+      body { padding: 0 1rem; }
+      .watch-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-notice {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .file-notice code {
+      background: rgba(255,255,255,0.2);
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+    }
+
+    .transcript-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .transcript-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem 0;
+      color: var(--text);
+    }
+
+    .transcript-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .lang-chip {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .lang-chip:hover {
+      background: var(--highlight);
+    }
+
+    .lang-chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .lang-chip:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .transcript-area {
+      flex: 1;
+      min-height: 6rem;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .transcript-line {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      line-height: 1.5;
+    }
+
+    .transcript-line.dim {
+      opacity: 0.6;
+    }
+
+    .transcript-line.current {
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .summary-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 1rem 0;
+      color: var(--text);
+    }
+
+    .summary-text {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .summary-overview {
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+      width: 100%;
+    }
+
+    .summary-highlights {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    .summary-highlights li {
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-ts {
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .highlight-ts:hover {
+      color: var(--accent);
+    }
+
+    .empty {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Day in the life of Andrej Karpathy | Lex Fridman Podcast Clips</h1>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="watch-row">
+      <div class="video-wrap">
+        <div id="player"></div>
+        <div id="fileProtocolNotice" class="file-notice" style="display:none">
+          Video không hiển thị khi mở file trực tiếp. Chạy: <code>lsof -ti:8765 | xargs kill -9 2>/dev/null || true; python -m http.server 8765</code> rồi mở <code>http://localhost:8765/player.html</code>
+        </div>
+      </div>
+
+      <div class="transcript-card">
+        <h2>Transcript (sync)</h2>
+        <div class="transcript-header">
+          <button class="lang-chip active" id="langVi" aria-label="Xem phụ đề tiếng Việt">VI</button>
+          <button class="lang-chip" id="langEn" aria-label="View English subtitles">EN</button>
+        </div>
+        <div class="transcript-area">
+          <div class="transcript-line dim" id="transcriptPrev">—</div>
+          <div class="transcript-line current" id="transcriptCurrent">—</div>
+          <div class="transcript-line dim" id="transcriptNext">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h2>Tóm tắt</h2>
+      <div class="summary-text" id="summary">
+        <div class="summary-overview">Lex Fridman phỏng vấn Andrej Karpathy về một ngày làm việc hiệu quả. Karpathy là night owl, dậy khoảng 8h; thời PhD ngủ lúc 3h sáng. Giờ đêm quý vì mọi người ngủ — không tin nhắn, không news, có khối thời gian tập trung. Để productive: load working memory với vấn đề, obsessed (khi tắm, khi ngủ), cần vài ngày liên tục không bị gián đoạn. Fixed cost khi tiếp cận mọi vấn đề (SSH, VS Code, lỗi...) — phải remove barriers. Sáng: coffee, routine, news (Twitter, HN, WSJ) — ông suspicious về tác động của news. Ngày productive nhất chỉ 6–8h coding; cost of life (commute, food, homeostasis) rất cao. Động lực: it needs to exist, và người khác appreciate — sharing tạo motivation. Diet: intermittent fasting 18:6 (ăn 12h–18h), plant-based, 2 bữa/ngày; OMAD không thích; water fast: ngày 3+ không đói. Tesla: bursty, punctuated equilibrium — baseline cao hơn Google, có fires và sprints. Work-life balance: balance tốt nhưng thích sprints out of distribution (khoảng 1 tháng/lần) — đó khi tạo nanoGPT. Just five minutes — cost không phải 5 phút, society cần thay đổi cách nghĩ.</div>
+        <h3 style="font-size:0.9rem;font-weight:600;margin:0 0 0.5rem 0;">Các phần đáng chú ý</h3><ul class="summary-highlights"><li><span class="highlight-ts" data-seek="29" role="button" tabindex="0"><strong>[00:29]</strong> Night owl — dậy ~8h, PhD ngủ 3h sáng</span></li><li><span class="highlight-ts" data-seek="62" role="button" tabindex="0"><strong>[01:02]</strong> 3h sáng quý: mọi người ngủ, không distraction</span></li><li><span class="highlight-ts" data-seek="76" role="button" tabindex="0"><strong>[01:16]</strong> Load working memory, obsessed với problem</span></li><li><span class="highlight-ts" data-seek="118" role="button" tabindex="0"><strong>[01:58]</strong> Cần vài ngày span để get productive</span></li><li><span class="highlight-ts" data-seek="131" role="button" tabindex="0"><strong>[02:11]</strong> Fixed cost: SSH, VS Code, errors — remove barriers</span></li><li><span class="highlight-ts" data-seek="258" role="button" tabindex="0"><strong>[04:18]</strong> Productive day: 6–8h coding max</span></li><li><span class="highlight-ts" data-seek="311" role="button" tabindex="0"><strong>[05:11]</strong> Động lực: it needs to exist</span></li><li><span class="highlight-ts" data-seek="352" role="button" tabindex="0"><strong>[05:52]</strong> Sharing với world = motivation</span></li><li><span class="highlight-ts" data-seek="362" role="button" tabindex="0"><strong>[06:02]</strong> Intermittent fasting 18:6, plant-based</span></li><li><span class="highlight-ts" data-seek="478" role="button" tabindex="0"><strong>[07:58]</strong> Water fast: ngày 3+ không đói</span></li><li><span class="highlight-ts" data-seek="558" role="button" tabindex="0"><strong>[09:18]</strong> Tesla: bursty, punctuated equilibrium</span></li><li><span class="highlight-ts" data-seek="678" role="button" tabindex="0"><strong>[11:18]</strong> Balance + sprints out of distribution</span></li><li><span class="highlight-ts" data-seek="722" role="button" tabindex="0"><strong>[12:02]</strong> Just five minutes — cost không phải 5 phút</span></li></ul>
+        
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let transcriptData = [{"text": "a lot of people want to know you're one", "start": 2.96, "duration": 2.64}, {"text": "of the most productive and brilliant", "start": 4.16, "duration": 3.84}, {"text": "people in the history of AI what is a", "start": 5.6, "duration": 4.2}, {"text": "productive day in the life of Andre", "start": 8.0, "duration": 4.599}, {"text": "Kathy look like what time do you wake up", "start": 9.8, "duration": 5.919}, {"text": "you because imagine um some kind of", "start": 12.599, "duration": 5.161}, {"text": "dance between the average productive day", "start": 15.719, "duration": 3.681}, {"text": "and a perfect productive day so the", "start": 17.76, "duration": 3.2}, {"text": "perfect productive day is the thing we", "start": 19.4, "duration": 4.199}, {"text": "strive towards and the average is kind", "start": 20.96, "duration": 4.6}, {"text": "of what it kind of converges to given", "start": 23.599, "duration": 4.561}, {"text": "all the mistakes and human eventualities", "start": 25.56, "duration": 4.24}, {"text": "and so on so what what time did you wake", "start": 28.16, "duration": 3.84}, {"text": "up are you a morning person uh I'm not a", "start": 29.8, "duration": 4.599}, {"text": "morning person I'm a night ow for sure", "start": 32.0, "duration": 5.079}, {"text": "is it stable or not uh it's semi-stable", "start": 34.399, "duration": 5.16}, {"text": "like 8 or n or something like that um", "start": 37.079, "duration": 4.561}, {"text": "during my PhD uh it was even later I", "start": 39.559, "duration": 4.281}, {"text": "used to go to sleep usually at 3:00 a.m.", "start": 41.64, "duration": 5.32}, {"text": "I think uh the am hours are are precious", "start": 43.84, "duration": 4.399}, {"text": "and very interesting time to work", "start": 46.96, "duration": 3.84}, {"text": "because everyone is asleep um at at 8:", "start": 48.239, "duration": 5.041}, {"text": "a.m. or 7: a.m. the east coast is awake", "start": 50.8, "duration": 3.88}, {"text": "uh so there's already activity there's", "start": 53.28, "duration": 3.0}, {"text": "already some text messages whatever", "start": 54.68, "duration": 2.8}, {"text": "there's stuff happening you can go on", "start": 56.28, "duration": 3.2}, {"text": "like some news website and there's stuff", "start": 57.48, "duration": 4.599}, {"text": "happening distracting uh at 3:00 a.m.", "start": 59.48, "duration": 4.48}, {"text": "everything is totally quiet and so", "start": 62.079, "duration": 3.001}, {"text": "you're not going to be bothered and you", "start": 63.96, "duration": 5.24}, {"text": "have solid chunks of time to do work um", "start": 65.08, "duration": 6.399}, {"text": "so I like those periods um night all by", "start": 69.2, "duration": 4.279}, {"text": "default and then I think like productive", "start": 71.479, "duration": 4.601}, {"text": "time basically um what I like to do is", "start": 73.479, "duration": 4.081}, {"text": "you need you need to like build some", "start": 76.08, "duration": 3.76}, {"text": "momentum on the problem without too much", "start": 77.56, "duration": 6.32}, {"text": "distraction and um you need to load your", "start": 79.84, "duration": 6.639}, {"text": "Ram uh your working memory with that", "start": 83.88, "duration": 4.64}, {"text": "problem and then you need to be obsessed", "start": 86.479, "duration": 3.241}, {"text": "with it when you're taking shower when", "start": 88.52, "duration": 3.0}, {"text": "you're falling asleep you need to be", "start": 89.72, "duration": 3.12}, {"text": "obsessed with the problem and it's fully", "start": 91.52, "duration": 3.239}, {"text": "in your memory and you're ready to wake", "start": 92.84, "duration": 3.76}, {"text": "up and work on it right there so is a", "start": 94.759, "duration": 4.561}, {"text": "scale of uh is this in a scale temporal", "start": 96.6, "duration": 4.36}, {"text": "scale of a single day or a couple of", "start": 99.32, "duration": 3.88}, {"text": "days a week or month so I can't talk", "start": 100.96, "duration": 3.88}, {"text": "about one day basically in isolation", "start": 103.2, "duration": 3.48}, {"text": "because it it's a whole process when I", "start": 104.84, "duration": 2.84}, {"text": "want to get when I want to get", "start": 106.68, "duration": 2.439}, {"text": "productive in the problem I feel like I", "start": 107.68, "duration": 3.759}, {"text": "need a span of a few days where I can", "start": 109.119, "duration": 4.64}, {"text": "really get in on that problem and I", "start": 111.439, "duration": 3.64}, {"text": "don't want to be interrupted and I'm", "start": 113.759, "duration": 3.481}, {"text": "going to just uh be completely obsessed", "start": 115.079, "duration": 3.881}, {"text": "with that problem and that's where I do", "start": 117.24, "duration": 3.919}, {"text": "most of my good workout", "start": 118.96, "duration": 4.04}, {"text": "you've done a bunch of cool like little", "start": 121.159, "duration": 3.801}, {"text": "projects in a very short amount of time", "start": 123.0, "duration": 3.64}, {"text": "very quickly so that that requires you", "start": 124.96, "duration": 3.439}, {"text": "just focusing on it yeah basically I", "start": 126.64, "duration": 3.239}, {"text": "need to load my working memory with the", "start": 128.399, "duration": 3.121}, {"text": "problem and I need to be productive", "start": 129.879, "duration": 3.161}, {"text": "because there's always like a huge fixed", "start": 131.52, "duration": 4.68}, {"text": "cost to approaching any problem uh you", "start": 133.04, "duration": 4.52}, {"text": "know like I was struggling with this for", "start": 136.2, "duration": 3.119}, {"text": "example at Tesla because I want to work", "start": 137.56, "duration": 3.48}, {"text": "on like small s side project but okay", "start": 139.319, "duration": 3.2}, {"text": "you first need to figure out okay I need", "start": 141.04, "duration": 3.0}, {"text": "to SSH into my cluster I need to bring", "start": 142.519, "duration": 3.36}, {"text": "up a vs code editor so I can like work", "start": 144.04, "duration": 4.32}, {"text": "on this I need to I I run into some", "start": 145.879, "duration": 4.561}, {"text": "stupid error because of some reason like", "start": 148.36, "duration": 3.159}, {"text": "you're not at a point where you can be", "start": 150.44, "duration": 2.72}, {"text": "just productive right away you are", "start": 151.519, "duration": 4.961}, {"text": "facing barriers and so it's about uh", "start": 153.16, "duration": 5.56}, {"text": "really removing all of that barrier and", "start": 156.48, "duration": 3.679}, {"text": "you're able to go into the problem and", "start": 158.72, "duration": 3.2}, {"text": "you have the full problem loaded in your", "start": 160.159, "duration": 3.921}, {"text": "memory and somehow avoiding distractions", "start": 161.92, "duration": 5.56}, {"text": "of all different forms like uh news", "start": 164.08, "duration": 6.239}, {"text": "stories emails but also distractions", "start": 167.48, "duration": 5.0}, {"text": "from other interesting projects that you", "start": 170.319, "duration": 3.401}, {"text": "previously worked on or currently", "start": 172.48, "duration": 3.16}, {"text": "working on and so on you just want to", "start": 173.72, "duration": 3.68}, {"text": "really focus your mind and I mean I can", "start": 175.64, "duration": 4.2}, {"text": "take some time off for distractions and", "start": 177.4, "duration": 4.6}, {"text": "between but I think it can't be too much", "start": 179.84, "duration": 3.959}, {"text": "uh you know most of your day is sort of", "start": 182.0, "duration": 4.04}, {"text": "like spent on that problem and then you", "start": 183.799, "duration": 5.121}, {"text": "know I drink coffee I have my morning", "start": 186.04, "duration": 5.32}, {"text": "routine I look at some news uh Twitter", "start": 188.92, "duration": 5.56}, {"text": "Hacker News Wall Street Journal Etc so", "start": 191.36, "duration": 4.68}, {"text": "so basically you wake up you have some", "start": 194.48, "duration": 3.24}, {"text": "coffee are you trying to get to work as", "start": 196.04, "duration": 3.479}, {"text": "quickly as possible do you do take in", "start": 197.72, "duration": 4.48}, {"text": "this diet of of like what the hell is", "start": 199.519, "duration": 5.041}, {"text": "happening in the world first I am I do", "start": 202.2, "duration": 4.28}, {"text": "find it interesting to know about the", "start": 204.56, "duration": 4.28}, {"text": "world I don't know that it's useful or", "start": 206.48, "duration": 4.399}, {"text": "good but it is part of my right now so I", "start": 208.84, "duration": 3.56}, {"text": "do read through a bunch of news articles", "start": 210.879, "duration": 4.841}, {"text": "and I want to be informed and um I'm", "start": 212.4, "duration": 5.36}, {"text": "suspicious of it I'm suspicious of the", "start": 215.72, "duration": 3.719}, {"text": "practice but currently that's where I am", "start": 217.76, "duration": 3.52}, {"text": "Oh you mean suspicious about the", "start": 219.439, "duration": 4.88}, {"text": "positive effect yeah of that practice on", "start": 221.28, "duration": 5.159}, {"text": "your productivity and your well-being as", "start": 224.319, "duration": 4.081}, {"text": "my wellbeing psychologically yeah and", "start": 226.439, "duration": 3.72}, {"text": "also on your ability to deeply", "start": 228.4, "duration": 3.679}, {"text": "understand the world because how there's", "start": 230.159, "duration": 3.601}, {"text": "a bunch of sources of information you're", "start": 232.079, "duration": 3.641}, {"text": "not really focused on deeply integrating", "start": 233.76, "duration": 3.08}, {"text": "yeah it's a little bit distracting", "start": 235.72, "duration": 3.519}, {"text": "you're yeah in terms of a perfectly", "start": 236.84, "duration": 5.2}, {"text": "productive day for what how long of a", "start": 239.239, "duration": 5.56}, {"text": "stretch of time in one session do you", "start": 242.04, "duration": 4.919}, {"text": "try to work and focus on a thing a", "start": 244.799, "duration": 3.961}, {"text": "couple hours is a 1 hour is it 30", "start": 246.959, "duration": 4.36}, {"text": "minutes is 10 minutes I can probably go", "start": 248.76, "duration": 4.16}, {"text": "like a small few hours and then I need", "start": 251.319, "duration": 3.76}, {"text": "some breaks in between for like food and", "start": 252.92, "duration": 5.76}, {"text": "stuff and uh yeah but I think like uh", "start": 255.079, "duration": 5.201}, {"text": "it's still really hard to accumulate", "start": 258.68, "duration": 3.48}, {"text": "hours I was using a Tracker that told me", "start": 260.28, "duration": 3.199}, {"text": "exactly how much time I spent coding any", "start": 262.16, "duration": 3.24}, {"text": "one day and even on a very productive", "start": 263.479, "duration": 3.921}, {"text": "day I still spent only like six or eight", "start": 265.4, "duration": 4.04}, {"text": "hours yeah and it's just because there's", "start": 267.4, "duration": 5.079}, {"text": "so much padding commute talking to", "start": 269.44, "duration": 6.28}, {"text": "people food Etc there's like the cost of", "start": 272.479, "duration": 6.28}, {"text": "life just living and sustaining and", "start": 275.72, "duration": 4.72}, {"text": "homeostasis and just maintaining", "start": 278.759, "duration": 4.72}, {"text": "yourself as a human is very high and and", "start": 280.44, "duration": 5.72}, {"text": "that there seems to be a desire within", "start": 283.479, "duration": 4.961}, {"text": "the human mind to to uh to participate", "start": 286.16, "duration": 4.44}, {"text": "in society that creates that padding", "start": 288.44, "duration": 4.36}, {"text": "yeah cuz I yeah the most productive days", "start": 290.6, "duration": 4.08}, {"text": "I've ever had is just completely from", "start": 292.8, "duration": 3.28}, {"text": "start to finish just tuning out", "start": 294.68, "duration": 3.959}, {"text": "everything Y and just sitting there and", "start": 296.08, "duration": 4.16}, {"text": "then and then you could do more than 6", "start": 298.639, "duration": 4.12}, {"text": "and 8 hours is there some wisdom about", "start": 300.24, "duration": 4.799}, {"text": "what gives you strength to do like uh", "start": 302.759, "duration": 4.321}, {"text": "tough days of long", "start": 305.039, "duration": 4.081}, {"text": "Focus yeah just like whenever I get", "start": 307.08, "duration": 3.44}, {"text": "obsessed about a problem something just", "start": 309.12, "duration": 2.84}, {"text": "needs to work something just needs to", "start": 310.52, "duration": 3.76}, {"text": "exist it needs to exist and you so", "start": 311.96, "duration": 4.12}, {"text": "you're able to deal with bugs and", "start": 314.28, "duration": 3.68}, {"text": "programming issues and technical issues", "start": 316.08, "duration": 4.52}, {"text": "and uh design decisions that turn out to", "start": 317.96, "duration": 3.92}, {"text": "be the wrong ones you're able to think", "start": 320.6, "duration": 3.0}, {"text": "through all of that given given that you", "start": 321.88, "duration": 3.56}, {"text": "want to thing to exist yeah it needs to", "start": 323.6, "duration": 3.56}, {"text": "exist and then I think uh to me also a", "start": 325.44, "duration": 3.4}, {"text": "big factor is uh you know our other", "start": 327.16, "duration": 2.879}, {"text": "humans are going to app appreciate it", "start": 328.84, "duration": 2.84}, {"text": "are they going to like it that's a big", "start": 330.039, "duration": 3.121}, {"text": "part of my motivation if I'm helping", "start": 331.68, "duration": 3.92}, {"text": "humans and they seem happy they say nice", "start": 333.16, "duration": 5.08}, {"text": "things uh they tweet about it or", "start": 335.6, "duration": 4.24}, {"text": "whatever that gives me pleasure because", "start": 338.24, "duration": 3.2}, {"text": "I'm doing something useful so like you", "start": 339.84, "duration": 3.88}, {"text": "do see yourself sharing it with the", "start": 341.44, "duration": 3.92}, {"text": "world like whether it's on GitHub or the", "start": 343.72, "duration": 3.479}, {"text": "blog post or through videos yeah I was", "start": 345.36, "duration": 3.559}, {"text": "thinking about it like suppose I did all", "start": 347.199, "duration": 2.921}, {"text": "these things but did not share them I", "start": 348.919, "duration": 2.361}, {"text": "don't think I would have the same amount", "start": 350.12, "duration": 2.84}, {"text": "of motivation that I can build up you", "start": 351.28, "duration": 4.16}, {"text": "enjoy the feeling of other", "start": 352.96, "duration": 5.76}, {"text": "people um gaining value and happiness", "start": 355.44, "duration": 6.28}, {"text": "from the stuff you've created yeah uh", "start": 358.72, "duration": 5.44}, {"text": "what about diet is there I I saw you", "start": 361.72, "duration": 4.879}, {"text": "played with in fast you fast does that", "start": 364.16, "duration": 4.879}, {"text": "help play with everything you play well", "start": 366.599, "duration": 4.72}, {"text": "the things you played what's been most", "start": 369.039, "duration": 4.081}, {"text": "beneficial to the your ability to", "start": 371.319, "duration": 3.801}, {"text": "mentally focus on a thing and just", "start": 373.12, "duration": 3.76}, {"text": "mentally mental productivity and", "start": 375.12, "duration": 3.919}, {"text": "happiness you still fast yeah I still", "start": 376.88, "duration": 4.599}, {"text": "fast but I do intermittent fasting but", "start": 379.039, "duration": 3.641}, {"text": "really what it means at the end of the", "start": 381.479, "duration": 3.681}, {"text": "day is I skip breakfast yeah so I do uh", "start": 382.68, "duration": 4.6}, {"text": "186 roughly by default when I'm in my", "start": 385.16, "duration": 3.96}, {"text": "steady state if I'm traveling or doing", "start": 387.28, "duration": 3.4}, {"text": "something else I will break the rules", "start": 389.12, "duration": 4.199}, {"text": "but in my steady state I do 186 uh so I", "start": 390.68, "duration": 5.2}, {"text": "eat only from 12 to 6 uh not a hard Rule", "start": 393.319, "duration": 3.761}, {"text": "and I break it often but that's my", "start": 395.88, "duration": 3.599}, {"text": "default and then um yeah I've done a", "start": 397.08, "duration": 4.28}, {"text": "bunch of random experiments for the most", "start": 399.479, "duration": 3.56}, {"text": "part right now uh where I've been for", "start": 401.36, "duration": 3.559}, {"text": "the last year and a half I want to say", "start": 403.039, "duration": 5.041}, {"text": "is um um plant-based or plant forward I", "start": 404.919, "duration": 4.84}, {"text": "heard plant forward it sounds better", "start": 408.08, "duration": 2.679}, {"text": "exct I don't actually know the", "start": 409.759, "duration": 2.481}, {"text": "differences but it sounds better in my", "start": 410.759, "duration": 3.521}, {"text": "mind but it just means I I prefer uh", "start": 412.24, "duration": 5.44}, {"text": "plant-based food and uh raw or cooked or", "start": 414.28, "duration": 7.199}, {"text": "I prefer cooked uh and plant based so", "start": 417.68, "duration": 5.959}, {"text": "plant-based forgive me I don't actually", "start": 421.479, "duration": 5.481}, {"text": "know how wide the category of plant", "start": 423.639, "duration": 5.24}, {"text": "entails well plant just means that", "start": 426.96, "duration": 5.88}, {"text": "you're not about it and you can flex and", "start": 428.879, "duration": 6.241}, {"text": "uh you just prefer to eat plants and you", "start": 432.84, "duration": 3.84}, {"text": "know you're not making you're not trying", "start": 435.12, "duration": 3.519}, {"text": "to influence other people and if someone", "start": 436.68, "duration": 3.48}, {"text": "is you come to someone's house party and", "start": 438.639, "duration": 2.601}, {"text": "they serve you a steak that they're", "start": 440.16, "duration": 3.52}, {"text": "really proud of you will eat it yes", "start": 441.24, "duration": 3.72}, {"text": "right you're not judgmental that's", "start": 443.68, "duration": 3.72}, {"text": "beautiful I mean that's um I'm the flip", "start": 444.96, "duration": 3.959}, {"text": "side of that but I'm very sort of", "start": 447.4, "duration": 3.799}, {"text": "flexible have you tried doing one meal a", "start": 448.919, "duration": 5.641}, {"text": "day uh I have uh accidentally not", "start": 451.199, "duration": 5.28}, {"text": "consistently but I've accidentally had", "start": 454.56, "duration": 3.56}, {"text": "that I don't I don't like it I think it", "start": 456.479, "duration": 3.961}, {"text": "makes me feel uh not good it's too it's", "start": 458.12, "duration": 4.68}, {"text": "too much too much of a hit yeah and uh", "start": 460.44, "duration": 3.8}, {"text": "So currently I have about two meals a", "start": 462.8, "duration": 4.32}, {"text": "day 12 and six I I do that non-stop I'm", "start": 464.24, "duration": 5.799}, {"text": "doing it now I do it one meal a day okay", "start": 467.12, "duration": 4.28}, {"text": "it's interesting it's a interesting", "start": 470.039, "duration": 2.961}, {"text": "feeling have you ever fasted longer than", "start": 471.4, "duration": 3.479}, {"text": "a day yeah I've done a bunch of water", "start": 473.0, "duration": 4.08}, {"text": "fasts cuz I was curious what happens", "start": 474.879, "duration": 4.841}, {"text": "what anything interesting yeah I would", "start": 477.08, "duration": 3.92}, {"text": "say so I mean you know what's", "start": 479.72, "duration": 2.56}, {"text": "interesting is that you're hungry for", "start": 481.0, "duration": 3.599}, {"text": "two days and then starting day three or", "start": 482.28, "duration": 4.84}, {"text": "so you're not hungry it's like such a", "start": 484.599, "duration": 3.641}, {"text": "weird feeling because you haven't eaten", "start": 487.12, "duration": 2.799}, {"text": "in a few days and you're not hungry", "start": 488.24, "duration": 4.239}, {"text": "isn't that weird one of the many weird", "start": 489.919, "duration": 4.921}, {"text": "things about human biology it figures", "start": 492.479, "duration": 4.481}, {"text": "something out it finds finds another", "start": 494.84, "duration": 4.079}, {"text": "source of energy or something like that", "start": 496.96, "duration": 4.4}, {"text": "or uh relaxes the system I don't know", "start": 498.919, "duration": 3.56}, {"text": "how it works the body is like you're", "start": 501.36, "duration": 2.44}, {"text": "hungry you're hungry and then it just", "start": 502.479, "duration": 2.44}, {"text": "gives up it's like okay I guess we're", "start": 503.8, "duration": 3.679}, {"text": "fasting now there's nothing and then it", "start": 504.919, "duration": 3.96}, {"text": "just kind of like focuses on trying to", "start": 507.479, "duration": 3.761}, {"text": "make you not hungry uh and you know not", "start": 508.879, "duration": 4.28}, {"text": "feel the the damage of that and uh", "start": 511.24, "duration": 3.479}, {"text": "trying to give you some space to figure", "start": 513.159, "duration": 2.721}, {"text": "out the food", "start": 514.719, "duration": 4.161}, {"text": "situation so are you still to this day", "start": 515.88, "duration": 6.56}, {"text": "most productive uh at night I would say", "start": 518.88, "duration": 5.68}, {"text": "I am but it is really hard to maintain", "start": 522.44, "duration": 5.2}, {"text": "my PhD schedule um especially when I was", "start": 524.56, "duration": 4.6}, {"text": "say working at Tesla and someone it's a", "start": 527.64, "duration": 3.84}, {"text": "non-starter uh so but even now like you", "start": 529.16, "duration": 4.92}, {"text": "know people want to meet for various", "start": 531.48, "duration": 4.88}, {"text": "events they Society lives in a certain", "start": 534.08, "duration": 4.08}, {"text": "period of time and you sort of have to", "start": 536.36, "duration": 4.2}, {"text": "like work with that it's hard to like do", "start": 538.16, "duration": 4.28}, {"text": "a social thing and then after that", "start": 540.56, "duration": 5.44}, {"text": "return and do work yeah it's just really", "start": 542.44, "duration": 5.72}, {"text": "hard uh that's why I try when I do", "start": 546.0, "duration": 4.279}, {"text": "social things I try not to do too uh too", "start": 548.16, "duration": 4.16}, {"text": "much drinking so I can return and uh", "start": 550.279, "duration": 3.361}, {"text": "continue doing", "start": 552.32, "duration": 5.48}, {"text": "work um but a Tesla is there is there", "start": 553.64, "duration": 7.4}, {"text": "convergence Tesla but any any company is", "start": 557.8, "duration": 5.84}, {"text": "there convergence to a schedule or is", "start": 561.04, "duration": 3.44}, {"text": "there", "start": 563.64, "duration": 3.199}, {"text": "more is that how humans behave when they", "start": 564.48, "duration": 4.96}, {"text": "collaborate I need to learn about this", "start": 566.839, "duration": 4.401}, {"text": "they try to keep us consistent schedule", "start": 569.44, "duration": 3.36}, {"text": "where you're all awake at the same time", "start": 571.24, "duration": 3.36}, {"text": "I mean I do try to create a routine and", "start": 572.8, "duration": 3.64}, {"text": "I try to create a steady state in which", "start": 574.6, "duration": 4.32}, {"text": "I'm uh comfortable in uh so I have a", "start": 576.44, "duration": 4.16}, {"text": "morning routine I have a day routine I", "start": 578.92, "duration": 4.28}, {"text": "try to keep things to a steady state and", "start": 580.6, "duration": 4.679}, {"text": "um things are predictable and then you", "start": 583.2, "duration": 3.44}, {"text": "can sort of just like your body just", "start": 585.279, "duration": 2.961}, {"text": "sort of like sticks to that and if you", "start": 586.64, "duration": 2.92}, {"text": "try to stress that a little too much it", "start": 588.24, "duration": 2.68}, {"text": "will create uh you know when you're", "start": 589.56, "duration": 2.64}, {"text": "traveling and you're dealing with jet", "start": 590.92, "duration": 4.24}, {"text": "lag you're not able to really Ascend to", "start": 592.2, "duration": 5.6}, {"text": "you know where you need to go yeah yeah", "start": 595.16, "duration": 4.32}, {"text": "that's Weir to about as humans with", "start": 597.8, "duration": 3.279}, {"text": "habits and stuff uh what are your", "start": 599.48, "duration": 3.84}, {"text": "thoughts on work life balance throughout", "start": 601.079, "duration": 3.681}, {"text": "a human", "start": 603.32, "duration": 4.68}, {"text": "lifetime so tesing part was known for", "start": 604.76, "duration": 6.36}, {"text": "sort of pushing people to their limits", "start": 608.0, "duration": 4.6}, {"text": "in terms of what they're able to do in", "start": 611.12, "duration": 4.52}, {"text": "terms of what they're uh trying to do in", "start": 612.6, "duration": 4.479}, {"text": "terms of how much they work all that", "start": 615.64, "duration": 3.56}, {"text": "kind of stuff yeah I mean I will say", "start": 617.079, "duration": 4.521}, {"text": "Tesla gets a little too much uh bad rep", "start": 619.2, "duration": 3.759}, {"text": "for this because what's happening is", "start": 621.6, "duration": 3.679}, {"text": "Tesla is a it's a bursty environment uh", "start": 622.959, "duration": 4.841}, {"text": "so I would say the Baseline uh my only", "start": 625.279, "duration": 4.081}, {"text": "point of reference is Google well where", "start": 627.8, "duration": 3.08}, {"text": "I've interned three times and I saw what", "start": 629.36, "duration": 3.2}, {"text": "it's like inside Google and and deep", "start": 630.88, "duration": 4.04}, {"text": "mind um I would say the Baseline is", "start": 632.56, "duration": 3.959}, {"text": "higher than that but then there's a", "start": 634.92, "duration": 3.479}, {"text": "punctuated equilibrium where once in a", "start": 636.519, "duration": 4.081}, {"text": "while there's a fire and uh someone like", "start": 638.399, "duration": 4.201}, {"text": "people work really hard and so it it's", "start": 640.6, "duration": 3.88}, {"text": "spiky and bursty and then all the", "start": 642.6, "duration": 4.08}, {"text": "stories get collected the bursts and", "start": 644.48, "duration": 3.76}, {"text": "then it gives the appearance of like", "start": 646.68, "duration": 3.24}, {"text": "total insanity but actually it's just a", "start": 648.24, "duration": 3.719}, {"text": "bit more intense environment and there", "start": 649.92, "duration": 5.2}, {"text": "are fires and Sprints and so I think uh", "start": 651.959, "duration": 5.44}, {"text": "you know definitely though I I would say", "start": 655.12, "duration": 3.92}, {"text": "um it's a more intense environment than", "start": 657.399, "duration": 3.0}, {"text": "something you would got a but your in", "start": 659.04, "duration": 3.239}, {"text": "your personal forget all of that just in", "start": 660.399, "duration": 4.68}, {"text": "your own personal life um what do you", "start": 662.279, "duration": 5.281}, {"text": "think about the happiness of a human", "start": 665.079, "duration": 4.961}, {"text": "being uh a brilliant person like", "start": 667.56, "duration": 5.6}, {"text": "yourself about finding a balance between", "start": 670.04, "duration": 6.52}, {"text": "work and life or is such a thing not a", "start": 673.16, "duration": 4.84}, {"text": "good thought", "start": 676.56, "duration": 4.64}, {"text": "experiment yeah I think I think balance", "start": 678.0, "duration": 5.88}, {"text": "is good but I also love to have Sprints", "start": 681.2, "duration": 5.04}, {"text": "that are out of distribution and that's", "start": 683.88, "duration": 4.48}, {"text": "when I think I've been pretty uh", "start": 686.24, "duration": 6.039}, {"text": "creative and um as well Sprints out of", "start": 688.36, "duration": 6.96}, {"text": "distribution means that most of the time", "start": 692.279, "duration": 5.8}, {"text": "you you have a yeah quote unquote", "start": 695.32, "duration": 4.68}, {"text": "balance I have balance most of the time", "start": 698.079, "duration": 3.801}, {"text": "but I like being obsessed with something", "start": 700.0, "duration": 3.92}, {"text": "once in a while once in a while is what", "start": 701.88, "duration": 3.68}, {"text": "once a week once a month once a year", "start": 703.92, "duration": 2.96}, {"text": "yeah probably like say once a month or", "start": 705.56, "duration": 3.079}, {"text": "something yeah and that's when we get", "start": 706.88, "duration": 3.8}, {"text": "and you get Hub repo for yeah that's", "start": 708.639, "duration": 3.121}, {"text": "when you like really care about a", "start": 710.68, "duration": 2.599}, {"text": "problem it must exist this will be", "start": 711.76, "duration": 3.92}, {"text": "awesome you're obsessed with it and now", "start": 713.279, "duration": 3.721}, {"text": "you can't just do it on that day you", "start": 715.68, "duration": 2.88}, {"text": "need to pay the fixed cost of getting", "start": 717.0, "duration": 2.76}, {"text": "into the groove", "start": 718.56, "duration": 3.24}, {"text": "and then there for a while and then", "start": 719.76, "duration": 4.04}, {"text": "Society will come and they will TR toess", "start": 721.8, "duration": 3.2}, {"text": "with you and they will try to distract", "start": 723.8, "duration": 2.76}, {"text": "you yeah the worst thing is like a", "start": 725.0, "duration": 2.72}, {"text": "person who's like I just need five", "start": 726.56, "duration": 4.16}, {"text": "minutes of your time yeah this is the", "start": 727.72, "duration": 4.88}, {"text": "cost of that is not five minutes and", "start": 730.72, "duration": 3.919}, {"text": "Society needs to change how it thinks", "start": 732.6, "duration": 5.0}, {"text": "about just five minutes of your time", "start": 734.639, "duration": 5.161}, {"text": "right it's never it's never just one", "start": 737.6, "duration": 4.039}, {"text": "minute just just 30 just a quick what's", "start": 739.8, "duration": 6.0}, {"text": "the big deal why are you being so yeah", "start": 741.639, "duration": 4.161}, {"text": "no for", "start": 748.16, "duration": 4.0}];
+    let player;
+    let pollInterval;
+
+    async function loadTranscriptAtRuntime() {
+      try {
+        const r = await fetch('transcript_vi.json');
+        if (r.ok) {
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) { transcriptData = data; return; }
+        }
+      } catch (e) {}
+      try {
+        const r = await fetch('transcript.json');
+        if (r.ok) {
+          const data = await r.json();
+          if (Array.isArray(data) && data.length > 0) { transcriptData = data; return; }
+        }
+      } catch (e) {}
+    }
+    loadTranscriptAtRuntime();
+
+    function initTheme() {
+      const saved = localStorage.getItem('yt-player-theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('yt-player-theme', next);
+    });
+
+    const SYNC_OFFSET = 2;
+    function findSegmentIndex(time) {
+      const t = time + SYNC_OFFSET;
+      for (let i = 0; i < transcriptData.length; i++) {
+        const s = transcriptData[i];
+        if (t >= s.start && t < s.start + s.duration) return i;
+      }
+      // Gap: show nearest segment (last passed or next upcoming)
+      if (transcriptData.length === 0) return -1;
+      for (let i = transcriptData.length - 1; i >= 0; i--) {
+        if (t >= transcriptData[i].start) return i;
+      }
+      return 0;
+    }
+
+    const langKey = 'yt-player-lang';
+    const savedLang = localStorage.getItem(langKey) || 'vi';
+    let showVi = savedLang === 'vi';
+    document.getElementById('langVi').classList.toggle('active', showVi);
+    document.getElementById('langEn').classList.toggle('active', !showVi);
+
+    document.getElementById('langVi').addEventListener('click', () => {
+      showVi = true;
+      document.getElementById('langVi').classList.add('active');
+      document.getElementById('langEn').classList.remove('active');
+      localStorage.setItem(langKey, 'vi');
+      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+    });
+    document.getElementById('langEn').addEventListener('click', () => {
+      showVi = false;
+      document.getElementById('langEn').classList.add('active');
+      document.getElementById('langVi').classList.remove('active');
+      localStorage.setItem(langKey, 'en');
+      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+    });
+
+    function getSegmentText(seg) {
+      const text = seg.text || '—';
+      const textVi = seg.textVi || '';
+      return showVi && textVi ? textVi : text;
+    }
+
+    function updateTranscript(time) {
+      const idx = findSegmentIndex(time);
+      const prevEl = document.getElementById('transcriptPrev');
+      const curEl = document.getElementById('transcriptCurrent');
+      const nextEl = document.getElementById('transcriptNext');
+      if (idx >= 0) {
+        curEl.textContent = getSegmentText(transcriptData[idx]);
+        prevEl.textContent = idx > 0 ? getSegmentText(transcriptData[idx - 1]) : '—';
+        nextEl.textContent = idx < transcriptData.length - 1 ? getSegmentText(transcriptData[idx + 1]) : '—';
+      } else {
+        prevEl.textContent = '—';
+        curEl.textContent = '—';
+        nextEl.textContent = '—';
+      }
+    }
+
+    document.querySelectorAll('.highlight-ts').forEach(el => {
+      el.addEventListener('click', () => {
+        const sec = parseFloat(el.getAttribute('data-seek'));
+        if (player && player.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const sec = parseFloat(el.getAttribute('data-seek'));
+          if (player && player.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+        }
+      });
+    });
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'iu3LJY8N_9s',
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: { autoplay: 0 },
+        events: {
+          onReady: function() {
+            pollInterval = setInterval(function() {
+              if (player && player.getCurrentTime) {
+                const t = player.getCurrentTime();
+                if (typeof t === 'number' && !isNaN(t)) updateTranscript(t);
+              }
+            }, 300);
+          }
+        }
+      });
+    }
+
+    if (window.location.protocol === 'file:') {
+      document.getElementById('fileProtocolNotice').style.display = 'block';
+    }
+    initTheme();
+    updateTranscript(0);
+  </script>
+</body>
+</html>
