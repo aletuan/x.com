@@ -17,13 +17,14 @@ Pipeline để crawl YouTube: lấy transcript **chỉ từ Apify** (EN, 1 run �
 
 ---
 
-## Workflow — 5 Steps
+## Workflow — 6 Steps
 
 | Step | Hành động | Tool / Cách |
 |------|-----------|-------------|
 | 1 | Parse video ID từ URL | Regex: `(?:youtube.com/watch\?v=|youtu.be/)([a-zA-Z0-9_-]{11})` |
 | 2 | Fetch video info (title, output_dir) | `python skills/youtube-crawl-translate/scripts/fetch_video_info.py <video_id>` |
 | 3 | Fetch transcript (EN, Apify only) | `python skills/youtube-crawl-translate/scripts/fetch_transcript.py <video_id>` |
+| 3b | **(Optional)** Dịch EN→VI (Claude) | `fetch_transcript.py <id> \| translate_transcript.py` |
 | 4 | Summarize | Agent tóm tắt chi tiết với mốc thời gian và đoạn hội thoại ý nghĩa |
 | 5 | Generate HTML + open | `generate_player.py` với `output_dir` từ step 2 |
 
@@ -66,6 +67,18 @@ Output: JSON array `[{"text": "...", "start": 0.0, "duration": 4.5}, ...]`
 
 **Nếu Apify fail:** Báo lỗi, dừng pipeline. Không tạo player với transcript giả/fallback.
 
+### Step 3b — (Optional) Dịch EN→VI với Claude
+
+Để có phụ đề tiếng Việt chất lượng cao:
+
+```bash
+python skills/youtube-crawl-translate/scripts/fetch_transcript.py <video_id> 2>/dev/null | python skills/youtube-crawl-translate/scripts/translate_transcript.py
+```
+
+Cần `ANTHROPIC_API_KEY` trong `.env`. Script dịch theo batch (mặc định 20 segment/batch), in progress ra stderr. Output: `[{"text": "...", "textVi": "...", "start": 0.0, "duration": 4.5}, ...]`
+
+**Bỏ qua:** Nếu không cần VI, dùng output từ step 3 trực tiếp (player hiển thị EN).
+
 ### Step 4 — Summarize
 
 Dùng Cursor kết hợp transcript để tạo tóm tắt gồm **2 phần**:
@@ -107,8 +120,10 @@ Sau đó mở trong browser: `open output/{slug}-{video_id}/player.html` hoặc 
 
 ## Dependencies
 
-- `pip install -r requirements.txt` (apify-client, python-dotenv)
-- `.env` với `APIFY_TOKEN` (bắt buộc cho transcript — YouTube chặn bot, chỉ Apify hoạt động ổn định)
+- `pip install -r requirements.txt` (apify-client, anthropic, python-dotenv)
+- `.env`:
+  - `APIFY_TOKEN` (bắt buộc cho transcript)
+  - `ANTHROPIC_API_KEY` (cho dịch VI — Step 3b)
 
 ---
 
@@ -127,5 +142,6 @@ Sau đó mở trong browser: `open output/{slug}-{video_id}/player.html` hoặc 
 | Script | Input | Output |
 |--------|-------|--------|
 | fetch_video_info.py | video_id | JSON {title, slug, output_dir} |
-| fetch_transcript.py | video_id | JSON transcript |
+| fetch_transcript.py | video_id | JSON transcript (EN) |
+| translate_transcript.py | transcript JSON (stdin) | transcript với textVi |
 | generate_player.py | video_id, title, transcript, summary_overview, summary_highlights, output_dir | player.html |

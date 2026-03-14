@@ -113,6 +113,14 @@ python skills/youtube-crawl-translate/scripts/fetch_transcript.py dQw4w9WgXcQ
 
 Output: `[{"text": "...", "start": 0.0, "duration": 4.5}, ...]`
 
+### 3b. (Optional) Dịch sang tiếng Việt
+
+```bash
+python skills/youtube-crawl-translate/scripts/fetch_transcript.py dQw4w9WgXcQ 2>/dev/null | python skills/youtube-crawl-translate/scripts/translate_transcript.py
+```
+
+Cần `ANTHROPIC_API_KEY` trong `.env`. Output: `[{"text": "...", "textVi": "...", "start": 0.0, "duration": 4.5}, ...]`
+
 ### 4. Tóm tắt (Agent)
 
 Tóm tắt chi tiết với mốc thời gian `[MM:SS]` và các đoạn hội thoại ý nghĩa. Xem SKILL.md Step 4.
