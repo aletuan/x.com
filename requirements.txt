@@ -1,0 +1,4 @@
+python-dotenv>=1.0.0
+apify-client>=1.6.0
+google-api-python-client>=2.100.0
+deep-translator>=1.11.0

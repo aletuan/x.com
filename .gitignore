@@ -1,0 +1,16 @@
+# Environment - never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Output
+output/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS
+.DS_Store
