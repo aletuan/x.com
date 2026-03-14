@@ -32,6 +32,30 @@ Rules:
 - If a line is [Music] or similar, output the same."""
 
 
+def _extract_json_array(raw: str):
+    """Extract first valid JSON array from response (handles extra text, markdown)."""
+    raw = raw.strip()
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        if "Extra data" in str(e):
+            # Response has valid JSON + trailing text: find first complete array
+            depth, start, i = 0, -1, 0
+            for i, c in enumerate(raw):
+                if c == "[":
+                    if depth == 0:
+                        start = i
+                    depth += 1
+                elif c == "]":
+                    depth -= 1
+                    if depth == 0 and start >= 0:
+                        return json.loads(raw[start : i + 1])
+            raise RuntimeError("Could not extract JSON array from response") from e
+        raise
+
+
 def translate_batch(texts: list[str], client) -> list[str]:
     """Translate a batch of texts via Claude. Returns exactly len(texts) items."""
     user_content = f"Translate these {len(texts)} lines to Vietnamese. Reply with JSON array of {len(texts)} strings.\n\n" + "\n".join(f"{i+1}. {t}" for i, t in enumerate(texts))
@@ -45,10 +69,7 @@ def translate_batch(texts: list[str], client) -> list[str]:
     if block.type != "text":
         raise RuntimeError(f"Unexpected response type: {block.type}")
     raw = block.text.strip()
-    # Extract JSON array (handle markdown code blocks)
-    if raw.startswith("```"):
-        raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0]
-    out = json.loads(raw)
+    out = _extract_json_array(raw)
     if not isinstance(out, list):
         raise RuntimeError("Expected JSON array")
     while len(out) < len(texts):
