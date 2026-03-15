@@ -5,8 +5,21 @@
   "published_at": "2026-02-17T15:00:42Z",
   "duration_seconds": 3011,
   "sub_lines": 1648,
-  "num_events": 0,
-  "summary_overview": "",
-  "summary_overview_vi": "",
-  "summary_highlights": []
+  "num_events": 12,
+  "summary_overview": "Boris Cherny, creator of Claude Code, discusses how he built Anthropic's revolutionary coding assistant that now writes 70-90% of code at the company. Starting as a simple terminal app in September 2024 to test Anthropic's API, Claude Code evolved organically through user feedback and latent demand. Cherny emphasizes building for the model six months from now rather than today's capabilities, as models improve rapidly. The product began when he gave Claude a bash tool and asked what music he was listening to - Claude wrote AppleScript to check his Mac, creating his first \"feel the AGI\" moment. The terminal interface, initially chosen for simplicity, became surprisingly effective and remained the core despite expectations it would be temporary. Claude Code's development follows a pattern of constant rewriting - no code exists from six months ago. Features like plan mode emerged from observing users naturally prompt Claude to plan before coding. Cherny advocates for minimal scaffolding around models since gains get wiped out by new releases. His personal Claude MD contains just two lines about PR workflow, while team instructions live in a shared repository. The product exemplifies latent demand - solving problems users already have rather than creating new behaviors. Teams feature enables multiple agents with fresh context windows to tackle larger problems. Cherny predicts coding will be generally solved within months, with software engineer roles evolving toward broader builder responsibilities. He joined Anthropic after being amazed by early AI products while living in rural Japan, drawn by the mission-driven culture focused on AI safety. Internal productivity at Anthropic increased 150% since Claude Code's introduction, with some engineers achieving 100% AI-generated code.",
+  "summary_overview_vi": "Boris Cherny, người tạo ra Claude Code, thảo luận về cách anh ấy xây dựng trợ lý coding cách mạng của Anthropic, hiện viết 70-90% code tại công ty. Bắt đầu như một ứng dụng terminal đơn giản vào tháng 9 năm 2024 để kiểm tra API của Anthropic, Claude Code phát triển hữu cơ thông qua phản hồi của người dùng và nhu cầu tiềm ẩn. Cherny nhấn mạnh việc xây dựng cho mô hình sáu tháng sau đây thay vì khả năng hiện tại, vì các mô hình cải thiện nhanh chóng. Sản phẩm bắt đầu khi anh ấy cung cấp cho Claude một công cụ bash và hỏi anh ấy đang nghe nhạc gì - Claude đã viết AppleScript để kiểm tra Mac của anh, tạo ra moment \"cảm nhận AGI\" đầu tiên của anh. Giao diện terminal, ban đầu được chọn vì đơn giản, trở thành bất ngờ hiệu quả và vẫn là cốt lõi mặc dù kỳ vọng nó sẽ tạm thời. Phát triển Claude Code tuân theo một mẫu viết lại liên tục - không có code nào từ sáu tháng trước tồn tại. Các tính năng như plan mode nổi lên từ việc quan sát người dùng tự nhiên nhắc Claude lên kế hoạch trước khi code. Cherny ủng hộ scaffolding tối thiểu xung quanh các mô hình vì lợi ích bị xóa bỏ bởi các bản phát hành mới. Claude MD cá nhân của anh chỉ chứa hai dòng về quy trình PR, trong khi hướng dẫn nhóm nằm trong một kho lưu trữ dùng chung. Sản phẩm minh họa nhu cầu tiềm ẩn - giải quyết các vấn đề người dùng đã có thay vì tạo ra các hành vi mới. Tính năng Teams cho phép nhiều agent với các cửa sổ ngữ cảnh mới để giải quyết các vấn đề lớn hơn. Cherny dự đoán coding sẽ được giải quyết chung trong vài tháng, với các vai trò kỹ sư phần mềm phát triển hướng tới trách nhiệm xây dựng rộng hơn. Anh ấy gia nhập Anthropic sau khi bị choáng ngợp bởi các sản phẩm AI sớm trong khi sống ở vùng nông thôn Nhật Bản, bị thu hút bởi văn hóa hướng tới sứ mệnh tập trung vào an toàn AI. Năng suất nội bộ tại Anthropic tăng 150% kể từ khi Claude Code được giới thiệu, với một số kỹ sư đạt 100% code do AI tạo ra.",
+  "summary_highlights": [
+    "[0:21] Build for the model 6 months from now, not today's model",
+    "[1:21] First felt the potential during 3 straight months of sleepless work",
+    "[3:30] Claude writing AppleScript to check music was his first \"feel the AGI\" moment",
+    "[7:00] Dario asked if engineers were forced to use it - they weren't, adoption was organic",
+    "[8:09] QuadMD emerged from users naturally writing markdown files for Claude to read",
+    "[10:08] Recommends deleting and restarting Claude MD when it gets too long",
+    "[15:29] Claude found memory leak faster than Boris by writing its own analysis tool",
+    "[19:47] Engineer gave Claude a tool to test arbitrary tools, then had Claude write its own",
+    "[25:05] Plan mode may be obsolete in a month as models improve",
+    "[39:29] All of Claude Code has been rewritten multiple times - no 6-month-old code exists",
+    "[44:04] Boris codes 100% with Claude now, lands 20 PRs daily without touching an IDE",
+    "[47:21] 4% of all public code commits are now made by Claude Code"
+  ]
 }

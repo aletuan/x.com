@@ -11,6 +11,15 @@ Thư mục chứa output từ các pipeline: YouTube crawl-translate (player + t
 | 1 | [building-effective-agents](./building-effective-agents/article.md) | Xây dựng agent hiệu quả (Anthropic) |
 | 2 | [code-execution-with-mcp](./code-execution-with-mcp/article.md) | Thực thi code với MCP (Anthropic) |
 
+### Blog (nghiên cứu AI agents)
+
+| # | Bài viết | Mô tả |
+|---|----------|-------|
+| 1 | [AI đòn bẩy cho PMs](../blog/01-ai-leverage-for-pms/article.md) | Cách PM dùng sub-agents như leverage thực sự |
+| 2 | [Self-improving skills](../blog/02-self-improving-skills/article.md) | Kỹ năng tự cải thiện và skill graph |
+| 3 | [Kỷ nguyên agent programming](../blog/03-agent-programming-paradigm/article.md) | Khi đơn vị lập trình là agent, không còn file |
+| 4 | [MCP và kiến trúc agent](../blog/04-mcp-agent-architecture/article.md) | MCP, skill-based agents, tool routing |
+
 ### YouTube (player + transcript EN/VI)
 
 | # | Video |
@@ -56,3 +65,11 @@ Ví dụ: http://localhost:8765/player.html?dir=output/how-to-learn-and-master-a
 
 - **YouTube crawl-translate:** `skills/youtube-crawl-translate/` — Apify transcript, Claude dịch VI
 - **Article:** Dịch bài từ Anthropic Engineering, lưu article.md + assets
+
+## Đồng bộ output thiếu tóm tắt/timeline
+
+Chạy script để summarize + translate các folder YouTube thiếu thông tin:
+
+```bash
+python scripts/sync_youtube_outputs.py --skip-test
+```

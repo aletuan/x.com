@@ -5,8 +5,20 @@
   "published_at": "2026-03-09T16:30:48Z",
   "duration_seconds": 526,
   "sub_lines": 241,
-  "num_events": 0,
-  "summary_overview": "",
-  "summary_overview_vi": "",
-  "summary_highlights": []
+  "num_events": 11,
+  "summary_overview": "Anthropic CEO discusses the evolving landscape of coding and AI's impact on career choices in this interview with Nikhil Kamath. He explains that Anthropic developed Claude Code, an internal tool for AI-assisted programming, giving them unique insights into code generation. When asked about which industries face disruption, he advises focusing on human-centered tasks and physical world applications, as coding itself will be increasingly automated by AI models while broader software engineering may persist longer. He emphasizes the power of comparative advantage - even contributing just 5% of a task while AI handles 95% can make someone 20 times more productive. For someone starting a career today, he recommends avoiding pure software engineering and instead considering semiconductors, human-centered professions, or building on AI as a tailwind. Critical thinking skills become crucial in an AI-generated world where distinguishing real from fake content is challenging. Addressing concerns about AI making humans less capable, he acknowledges that careless deployment could lead to deskilling, similar to how calculators might reduce mental math abilities. However, he argues people can still choose to learn and enrich themselves intellectually even when AI surpasses human performance. The discussion touches on the learning curve for tools like Claude Code, with the CEO noting they're working to make AI interfaces more user-friendly through products like Claude (Claude Code for non-coders) and educational resources through their 'Ministry of Education' initiative.",
+  "summary_overview_vi": "CEO của Anthropic thảo luận về bình cảnh phát triển của lập trình và tác động của AI đối với sự lựa chọn nghề nghiệp trong cuộc phỏng vấn với Nikhil Kamath. Ông giải thích rằng Anthropic đã phát triển Claude Code, một công cụ nội bộ để hỗ trợ lập trình bằng AI, cho phép họ có cái nhìn sâu sắc độc đáo về việc sinh tạo mã. Khi được hỏi về những ngành nào sẽ đối mặt với sự xáo trộn, ông khuyên tập trung vào những tác vụ tập trung vào con người và các ứng dụng trong thế giới vật lý, vì lập trình chính nó sẽ ngày càng được tự động hóa bởi các mô hình AI trong khi kỹ thuật phần mềm rộng hơn có thể kéo dài lâu hơn. Ông nhấn mạnh sức mạnh của lợi thế so sánh - ngay cả việc đóng góp chỉ 5% cho một tác vụ trong khi AI xử lý 95% có thể giúp ai đó có năng suất cao gấp 20 lần. Đối với ai bắt đầu sự nghiệp ngày hôm nay, ông khuyên tránh lập trình phần mềm thuần túy và thay vào đó cân nhắc các lĩnh vực bán dẫn, các nghề nhân văn hoặc xây dựng dựa trên AI như một xu hướng thuận lợi. Kỹ năng tư duy phản biện trở nên quan trọng trong một thế giới do AI sinh tạo nơi việc phân biệt nội dung thực từ giả là thách thức. Khi giải quyết mối lo ngại về AI làm cho con người kém có khả năng hơn, ông thừa nhận rằng triển khai bất cẩn có thể dẫn đến mất kỹ năng, giống như cách máy tính có thể làm giảm khả năng tính toán nhẩm. Tuy nhiên, ông cho rằng con người vẫn có thể chọn học tập và phong phú hơn về trí tuệ ngay cả khi AI vượt trội so với hiệu suất của con người. Cuộc thảo luận đề cập đến đường cong học tập cho các công cụ như Claude Code, với CEO lưu ý rằng họ đang nỗ lực để giao diện AI thân thiện hơn với người dùng thông qua các sản phẩm như Claude (Claude Code cho những người không phải lập trình viên) và các tài nguyên giáo dục thông qua sáng kiến 'Ministry of Education' của họ.",
+  "summary_highlights": [
+    "[0:03] Anthropic created internal tool Claude Code for their own coding needs",
+    "[0:53] Focus on human-centered tasks as coding becomes AI-dominated",
+    "[1:21] Coding will be automated first, then broader software engineering",
+    "[1:57] Even 5% human contribution with AI can make you 20x more productive",
+    "[3:04] Build on AI tailwinds - consider semiconductors or human-centered professions",
+    "[3:38] Critical thinking skills become most important as AI generates everything",
+    "[4:46] AI might kill certain human skills if not used thoughtfully",
+    "[5:44] Studies show AI can cause deskilling in coding depending on usage",
+    "[6:23] Careless AI deployment could make people stupider as a society",
+    "[7:29] Released Claude (non-coder version) due to command line struggles",
+    "[8:28] Anthropic's 'Ministry of Education' will teach effective AI prompting"
+  ]
 }

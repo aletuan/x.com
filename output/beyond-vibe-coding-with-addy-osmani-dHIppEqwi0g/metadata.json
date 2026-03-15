@@ -7,7 +7,7 @@
   "sub_lines": 1917,
   "num_events": 6,
   "summary_overview": "Addy Osmani (Chrome team 13 years, author of Beyond Vibe Coding) phân biệt rõ vibe coding với AI-assisted engineering: vibe coding chỉ phù hợp prototype nhanh, còn AI-assisted engineering giữ kỷ luật và chất lượng. Ông nhấn mạnh spec-driven development — có kế hoạch rõ trước khi build. Luôn đọc thinking log của model để hiểu nó làm gì trước khi approve. Vấn đề 70%: AI có thể làm 70% nhanh nhưng 30% còn lại (edge cases, integration) cần engineer giàu kinh nghiệm; junior dễ bị kẹt. Asynchronous background coding agents (Cursor, Codex, GitHub) là hướng mới. LGTM và CI/CD pass chỉ là signal — vẫn cần human review chất lượng.",
-  "summary_overview_vi": "",
+  "summary_overview_vi": "Addy Osmani (thành viên Chrome team 13 năm, tác giả Beyond Vibe Coding) phân biệt rõ vibe coding với AI-assisted engineering: vibe coding chỉ phù hợp để prototype nhanh, còn AI-assisted engineering duy trì kỷ luật và chất lượng. Ông nhấn mạnh spec-driven development — phải có kế hoạch rõ ràng trước khi xây dựng. Luôn đọc thinking log của model để hiểu nó đang làm gì trước khi phê duyệt. Vấn đề 70%: AI có thể hoàn thành 70% nhanh chóng nhưng 30% còn lại (edge cases, integration) cần engineer có kinh nghiệm; junior dễ gặp khó khăn. Asynchronous background coding agents (Cursor, Codex, GitHub) là hướng phát triển mới. LGTM và CI/CD pass chỉ là tín hiệu — vẫn cần human review về chất lượng.",
   "summary_highlights": [
     "[00:00] What does vibe coding mean? — Addy: vibe coding ≠ AI-assisted engineering",
     "[02:30] Spec-driven development — clear plan before building, tests derisk LLM use",

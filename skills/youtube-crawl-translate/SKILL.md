@@ -90,6 +90,14 @@ Dùng Cursor kết hợp transcript để tạo tóm tắt gồm **2 phần**:
   - Kết: Takeaway, dự đoán.
 - **Phong cách:** Viết trực tiếp, tránh "The speaker says/lays out/argues...". Ưu tiên nội dung hơn meta.
 - **Độ dài:** 15–25 câu (200–400 từ).
+- **Liệt kê:** Xuống dòng, mỗi mục bắt đầu bằng `- ` (gạch đầu dòng). Không dùng (1), (2), (3)... — player render thành `<ul><li>`. Ví dụ:
+  ```
+  Bốn công cụ: (dòng trống)
+  - System prompt — cân bằng vague vs prescriptive...
+  - Tool descriptions — cụ thể, có schema...
+  - Data retrieval — RAG vs MCP...
+  - Long-horizon — compaction, memory, composition
+  ```
 - **Tránh:** Liệt kê chủ đề, câu chung chung, lặp giữa overview và highlights.
 
 **2. Danh sách đáng chú ý** (`summary_highlights`):
@@ -170,6 +178,7 @@ Cần `ANTHROPIC_API_KEY` trong `.env`.
 |--------|-------|--------|
 | fetch_video_info.py | video_id | JSON {title, slug, output_dir} |
 | fetch_transcript.py | video_id | JSON transcript (EN) |
+| summarize_transcript.py | --output-dir | đọc transcript.json, tạo summary_overview + summary_highlights, cập nhật metadata.json |
 | fetch_transcript.py | video_id, output_dir | + ghi transcript.json vào output_dir |
 | translate_transcript.py | transcript JSON (stdin) | transcript với textVi |
 | translate_transcript.py | transcript (stdin), --output-dir | + ghi transcript_vi.json vào output_dir |

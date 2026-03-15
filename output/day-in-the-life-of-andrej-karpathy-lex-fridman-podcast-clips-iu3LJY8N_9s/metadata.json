@@ -5,8 +5,21 @@
   "published_at": "2022-10-31T12:00:04Z",
   "duration_seconds": 765,
   "sub_lines": 357,
-  "num_events": 0,
-  "summary_overview": "",
-  "summary_overview_vi": "",
-  "summary_highlights": []
+  "num_events": 12,
+  "summary_overview": "Andrej Karpathy discusses his approach to productivity as a night owl who typically wakes around 8-9 AM, though he maintained a 3 AM sleep schedule during his PhD. He emphasizes that productive work requires loading problems into working memory over several uninterrupted days, allowing complete obsession with the challenge. Karpathy explains the high fixed costs of approaching any problem - dealing with setup barriers, SSH connections, debugging - which necessitates sustained focus periods. His morning routine includes coffee and consuming news from Twitter, Hacker News, and Wall Street Journal, though he's suspicious of this practice's effect on productivity and well-being. For deep work sessions, he can focus for a few hours at a time, but even on highly productive days, actual coding time maxes out at 6-8 hours due to life's overhead costs. His motivation comes from building things that need to exist and sharing them with others who appreciate the work. Karpathy practices intermittent fasting (16:8), eating only from 12-6 PM, and follows a plant-forward diet. He's experimented with longer water fasts, noting that hunger disappears after day three. While naturally most productive at night, social and professional obligations force adaptation to conventional schedules. At Tesla, he found the environment more intense than Google but describes it as 'bursty' rather than consistently overwhelming. His philosophy on work-life balance involves maintaining equilibrium most of the time while allowing for monthly obsessive sprints on important problems. He warns against the hidden costs of interruptions, noting that 'five minutes' of someone's time is never actually just five minutes when deep focus is involved.",
+  "summary_overview_vi": "Andrej Karpathy thảo luận về cách tiếp cận năng suất của anh ấy với tư cách một người thích thức khuya, thường thức dậy vào 8-9 giờ sáng, mặc dù anh đã duy trì lịch ngủ lúc 3 giờ sáng trong thời gian học tiến sĩ. Anh nhấn mạnh rằng công việc có năng suất đòi hỏi phải tải các vấn đề vào bộ nhớ làm việc trong vài ngày liên tục không bị gián đoạn, cho phép hoàn toàn chìm đắm trong thử thách. Karpathy giải thích rằng có chi phí cố định cao khi tiếp cận bất kỳ vấn đề nào - xử lý các rào cản thiết lập, kết nối SSH, gỡ lỗi - điều này đòi hỏi các khoảng thời gian tập trung liên tục. Thói quen buổi sáng của anh bao gồm cà phê và tiêu thụ tin tức từ Twitter, Hacker News, và Wall Street Journal, mặc dù anh hoài nghi về ảnh hưởng của thực hành này đến năng suất và sức khỏe. Để có các phiên làm việc sâu sắc, anh có thể tập trung vài giờ một lúc, nhưng ngay cả vào những ngày có năng suất cao nhất, thời gian viết mã thực tế tối đa là 6-8 giờ do chi phí chung cuộc sống. Động lực của anh đến từ việc xây dựng những thứ cần phải tồn tại và chia sẻ chúng với những người khác đánh giá cao công việc. Karpathy thực hành nhịp ăn gián đoạn (16:8), chỉ ăn từ 12-6 giờ chiều, và theo chế độ ăn uống hướng tới thực vật. Anh đã thử nghiệm các bữa nhịn nước dài hơn, lưu ý rằng cảm giác đói biến mất sau ngày thứ ba. Mặc dù tự nhiên có năng suất cao nhất vào ban đêm, các nghĩa vụ xã hội và chuyên môn buộc anh phải thích ứng với các lịch trình thông thường. Tại Tesla, anh cảm thấy môi trường cường độ hơn so với Google nhưng mô tả nó là 'bùng nổ' chứ không phải luôn luôn áp đảo. Triết lý của anh về cân bằng công việc-cuộc sống liên quan đến việc duy trì cân bằng hầu hết thời gian trong khi cho phép các đợt hoàn toàn chìm đắm theo tháng trên các vấn đề quan trọng. Anh cảnh báo về chi phí ẩn của các gián đoạn, lưu ý rằng 'năm phút' của ai đó không bao giờ chỉ là năm phút khi có sự tập trung sâu sắc liên quan.",
+  "summary_highlights": [
+    "[0:32] 'I'm not a morning person I'm a night owl for sure'",
+    "[1:02] Values 3 AM work because 'everything is totally quiet'",
+    "[1:26] Need to 'load your RAM with that problem and be obsessed'",
+    "[1:49] Requires 'a span of a few days' to get productive on problems",
+    "[2:36] Fixed costs create barriers before reaching productive flow state",
+    "[4:25] Even productive days max out at 6-8 hours of actual coding",
+    "[5:11] Motivation: 'something just needs to exist' and helping others",
+    "[6:25] Practices 16:8 intermittent fasting, eating 12-6 PM only",
+    "[7:00] Follows plant-based diet but stays flexible socially",
+    "[8:04] Extended fasting: hunger disappears after day three",
+    "[10:25] Tesla is 'bursty environment' with punctuated intense periods",
+    "[12:07] 'Just five minutes' interruptions have much higher real costs"
+  ]
 }

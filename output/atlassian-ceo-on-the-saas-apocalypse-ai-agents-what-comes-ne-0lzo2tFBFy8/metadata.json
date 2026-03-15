@@ -5,8 +5,23 @@
   "published_at": "2026-03-06T15:50:06Z",
   "duration_seconds": 3259,
   "sub_lines": 1621,
-  "num_events": 0,
-  "summary_overview": "",
-  "summary_overview_vi": "",
-  "summary_highlights": []
+  "num_events": 14,
+  "summary_overview": "Atlassian CEO Mike Cannon-Brookes and investor Alex Rampell discuss the impact of AI on SaaS businesses, challenging the notion of a \"SaaS apocalypse.\" Cannon-Brookes argues that software evolution from 1960-2022 simply digitized filing cabinets into databases, but AI now enables these systems to actively perform work rather than just store data. He views AI as the best development for Atlassian's collaboration-focused business, which operates in knowledge work environments rich with text data. The discussion examines three categories of SaaS companies: those where seats directly produce outcomes (vulnerable to AI displacement like Zendesk), those using seat-based pricing as a fairness mechanism unrelated to work output (safer like Workday), and hybrid cases like Adobe. Rampell dismisses the idea that everyone will \"vibe code\" their own software replacements, citing comparative advantage theory and the complexity of embedded business rules learned over decades. Both speakers emphasize that businesses are collections of processes rather than just databases, with input-constrained processes (fixed workload) and output-constrained processes (creativity-limited) requiring different AI approaches. They discuss pricing challenges, noting customers prefer predictable seat-based models over consumption-based pricing due to fairness perceptions and control issues. Cannon-Brookes details Atlassian's AI strategy, focusing on enhancing existing workflows before introducing new ones, building foundational platforms like AI gateway and teamwork graph, and solving significant design challenges around human-AI collaboration. He emphasizes the importance of user trust, proper context management, and intuitive interfaces, comparing the current AI design challenge to early mobile development where initial apps simply replicated desktop experiences before evolving new interaction patterns.",
+  "summary_overview_vi": "CEO Atlassian Mike Cannon-Brookes và nhà đầu tư Alex Rampell thảo luận về tác động của AI đối với các doanh nghiệp SaaS, thách thức quan niệm về \"SaaS apocalypse\". Cannon-Brookes cho rằng sự tiến hóa của phần mềm từ 1960-2022 chỉ đơn giản là số hóa các tủ lệnh thành các cơ sở dữ liệu, nhưng AI giờ đây cho phép các hệ thống này tích cực thực hiện công việc thay vì chỉ lưu trữ dữ liệu. Ông xem AI là sự phát triển tốt nhất cho doanh nghiệp tập trung vào cộng tác của Atlassian, hoạt động trong các môi trường làm việc tri thức giàu dữ liệu văn bản. Cuộc thảo luận xem xét ba loại công ty SaaS: những công ty có số ghế trực tiếp tạo ra kết quả (dễ bị thay thế bởi AI như Zendesk), những công ty sử dụng định giá dựa trên ghế như một cơ chế công bằng không liên quan đến kết quả công việc (an toàn hơn như Workday), và các trường hợp kỳ lạ như Adobe. Rampell bác bỏ ý tưởng rằng mọi người sẽ \"vibe code\" để thay thế phần mềm của riêng họ, trích dẫn lý thuyết lợi thế so sánh và độ phức tạp của các quy tắc kinh doanh tích hợp học được trong nhiều thập kỷ. Cả hai diễn giả nhấn mạnh rằng các doanh nghiệp là tập hợp các quy trình thay vì chỉ các cơ sở dữ liệu, với các quy trình bị giới hạn đầu vào (khối lượng công việc cố định) và các quy trình bị giới hạn đầu ra (sáng tạo hạn chế) cần các cách tiếp cận AI khác nhau. Họ thảo luận về những thách thức giá cả, lưu ý rằng khách hàng thích các mô hình dựa trên ghế có thể dự đoán được thay vì định giá dựa trên tiêu thụ do nhận thức về công bằng và các vấn đề kiểm soát. Cannon-Brookes chi tiết chiến lược AI của Atlassian, tập trung vào cải thiện các quy trình hiện có trước khi giới thiệu các quy trình mới, xây dựng các nền tảng nền tảng như AI gateway và teamwork graph, và giải quyết các thách thức thiết kế đáng kể xung quanh cộng tác giữa con người và AI. Ông nhấn mạnh tầm quan trọng của lòng tin người dùng, quản lý bối cảnh phù hợp và các giao diện trực quan, so sánh thách thức thiết kế AI hiện tại với sự phát triển di động ban đầu, nơi các ứng dụng ban đầu chỉ đơn giản sao chép các trải nghiệm máy tính để bàn trước khi phát triển các mẫu tương tác mới.",
+  "summary_highlights": [
+    "[0:21] Filing cabinets can now do work, not just store data",
+    "[3:16] SaaS apocalypse reflects market uncertainty about AI disruption risk",
+    "[5:34] Not every SaaS company will thrive, but adaptation is key",
+    "[7:06] Three types of SaaS: outcome-tied seats, fairness pricing, hybrid models",
+    "[11:17] Comparative advantage theory challenges vibe coding replacement claims",
+    "[14:27] Businesses are process collections, not just systems of record",
+    "[16:18] Input vs output constrained processes require different AI strategies",
+    "[23:02] Vibe coding useful for extensions, terrifying for core replacements",
+    "[30:18] Customers hate unpredictable consumption-based AI pricing models",
+    "[35:47] Atlassian focuses on text-heavy collaboration problems with AI",
+    "[41:34] Design challenges mirror mobile era's evolution from desktop metaphors",
+    "[43:28] Trust building requires showing AI actions without being annoying",
+    "[48:01] Human-agent collaboration loops are fundamental design problems",
+    "[51:21] Document creation with AI requires completely new user paradigms"
+  ]
 }

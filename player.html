@@ -452,12 +452,32 @@
     .summary-text {
       color: var(--text);
       font-size: 0.95rem;
+      max-height: 420px;
+      overflow-y: auto;
     }
 
     .summary-overview {
       margin-bottom: 1.25rem;
-      line-height: 1.6;
-      width: 100%;
+      line-height: 1.65;
+      max-width: 72ch;
+    }
+
+    .summary-overview p {
+      margin: 0 0 0.85rem 0;
+    }
+
+    .summary-overview p:last-child {
+      margin-bottom: 0;
+    }
+
+    .summary-overview .summary-list {
+      margin: 0.75rem 0;
+      padding-left: 1.25rem;
+    }
+
+    .summary-overview .summary-list li {
+      margin-bottom: 0.5rem;
+      line-height: 1.55;
     }
 
     .summary-highlights {
@@ -513,6 +533,29 @@
       const div = document.createElement('div');
       div.textContent = s || '';
       return div.innerHTML;
+    }
+
+    function formatSummaryWithList(text) {
+      if (!text) return '';
+      const paras = text.split(/\n\n+/);
+      return paras.map(p => {
+        const lines = p.split('\n');
+        const listLines = lines.filter(l => /^[-•]\s/.test(l.trim()));
+        if (listLines.length > 0) {
+          const introLines = [];
+          for (const l of lines) {
+            if (/^[-•]\s/.test(l.trim())) break;
+            introLines.push(l);
+          }
+          const intro = introLines.join('\n').trim();
+          const items = listLines.map(l => l.replace(/^[-•]\s*/, '').replace(/^\(\d+\)\s*/, '').trim());
+          let out = '';
+          if (intro) out += '<p>' + escapeHtml(intro).replace(/\n/g, '<br>') + '</p>';
+          out += '<ul class="summary-list">' + items.map(i => '<li>' + escapeHtml(i) + '</li>').join('') + '</ul>';
+          return out;
+        }
+        return '<p>' + escapeHtml(p).replace(/\n/g, '<br>') + '</p>';
+      }).join('');
     }
 
     function makeHighlightLi(h) {
@@ -582,8 +625,8 @@
         const en = (meta.summary_overview || '').trim();
         if (vi || en) {
           let html = '';
-          if (vi) html += '<div class="summary-overview" id="summaryVi">' + escapeHtml(vi).replace(/\n/g, '<br>') + '</div>';
-          if (en) html += '<div class="summary-overview" id="summaryEn">' + escapeHtml(en).replace(/\n/g, '<br>') + '</div>';
+          if (vi) html += '<div class="summary-overview" id="summaryVi">' + formatSummaryWithList(vi) + '</div>';
+          if (en) html += '<div class="summary-overview" id="summaryEn">' + formatSummaryWithList(en) + '</div>';
           summaryOverview.innerHTML = html;
           const viEl = document.getElementById('summaryVi');
           const enEl = document.getElementById('summaryEn');
