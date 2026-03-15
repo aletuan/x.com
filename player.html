@@ -620,37 +620,6 @@
       font-weight: 500;
     }
 
-    .timeline-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .timeline-progress-bar {
-      flex: 1;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .timeline-progress-fill {
-      height: 100%;
-      background: var(--accent);
-      border-radius: 3px;
-      transition: width 0.2s ease;
-    }
-
-    .timeline-progress-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      min-width: 3.5rem;
-    }
-
     .setting-row {
       display: flex;
       align-items: center;
@@ -795,7 +764,7 @@
         }
       }
       if (items.length === 0) return '<span class="empty">Chưa có timeline</span>';
-      return '<div class="timeline-header"><div class="timeline-progress-bar"><div class="timeline-progress-fill" id="timelineProgressFill" style="width:0%"></div></div><span class="timeline-progress-label" id="timelineProgressLabel">0%</span></div><div class="timeline-vertical" id="timelineVertical"><div class="timeline-track"></div><div class="timeline-progress" id="timelineProgress" style="height:0"></div>' + items.join('') + '</div>';
+      return '<div class="timeline-vertical" id="timelineVertical"><div class="timeline-track"></div><div class="timeline-progress" id="timelineProgress" style="height:0"></div>' + items.join('') + '</div>';
     }
 
     function getBasePath() {
@@ -1030,12 +999,6 @@
     function updateTimelineHighlight(time) {
       if (timelineHighlights.length === 0) return;
       const idx = findTimelineHighlightIndex(time);
-      const durationSec = meta?.duration_seconds || 60;
-      const pct = Math.min(100, Math.max(0, (time / durationSec) * 100));
-      const fillEl = document.getElementById('timelineProgressFill');
-      const labelEl = document.getElementById('timelineProgressLabel');
-      if (fillEl) fillEl.style.width = pct.toFixed(1) + '%';
-      if (labelEl) labelEl.textContent = Math.round(pct) + '%';
       document.querySelectorAll('#timelineVertical .timeline-item').forEach(el => {
         const i = parseInt(el.getAttribute('data-index'), 10);
         el.classList.toggle('current', i === idx);
@@ -1054,11 +1017,10 @@
         lastTimelineIdx = idx;
         const list = document.getElementById('timelineContent');
         const currentEl = document.querySelector('#timelineVertical .timeline-item.current');
-        const header = document.querySelector('.timeline-header');
-        if (list && currentEl && header) {
+        if (list && currentEl) {
           const maxScroll = list.scrollHeight - list.clientHeight;
           if (maxScroll > 0) {
-            const itemOffset = header.offsetHeight + currentEl.offsetTop;
+            const itemOffset = currentEl.offsetTop;
             const scrollTop = Math.max(0, Math.min(itemOffset - (list.clientHeight / 2) + (currentEl.offsetHeight / 2), maxScroll));
             list.scrollTo({ top: scrollTop, behavior: 'smooth' });
           }
