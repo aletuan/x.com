@@ -208,6 +208,32 @@
       border-radius: 4px;
     }
 
+    .transcript-overlay {
+      position: absolute;
+      bottom: 48px;
+      left: 0;
+      right: 0;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      color: #fff;
+      text-align: center;
+      pointer-events: none;
+      font-size: 1rem;
+      line-height: 1.5;
+      min-height: 2.5rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .transcript-overlay .overlay-text {
+      max-width: 90%;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    .transcript-overlay .overlay-line { display: block; }
+    .transcript-overlay .overlay-line.sub { font-size: 0.9em; opacity: 0.9; margin-top: 0.15rem; }
+
     .transcript-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -500,6 +526,53 @@
       color: var(--accent);
     }
 
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-row:last-child { border-bottom: none; }
+
+    .setting-label {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .setting-toggle {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .setting-toggle button {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: none;
+      border-right: 1px solid var(--border);
+      background: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .setting-toggle button:last-child { border-right: none; }
+    .setting-toggle button:hover { color: var(--text); background: var(--highlight); }
+    .setting-toggle button.active {
+      background: var(--highlight);
+      color: var(--accent);
+    }
+    .setting-toggle button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
     .empty {
       color: var(--text-muted);
       font-style: italic;
@@ -679,8 +752,10 @@
 
     const langKey = 'yt-player-lang';
     const subLangKey = 'yt-player-sublang';
+    const overlayKey = 'yt-player-overlay';
     let showVi = (localStorage.getItem(langKey) || 'vi') === 'vi';
     let subLangMode = localStorage.getItem(subLangKey) || 'bilingual';
+    let overlayEnabled = localStorage.getItem(overlayKey) !== 'off';
     let hasVi = false;
 
     function toggleSummaryLang() {
@@ -752,6 +827,27 @@
         const i = parseInt(el.getAttribute('data-index'), 10);
         el.classList.toggle('current', i === idx);
       });
+      const overlayEl = document.getElementById('overlayText');
+      if (overlayEl) {
+        if (overlayEnabled && idx >= 0 && transcriptData[idx]) {
+          const seg = transcriptData[idx];
+          const text = seg.text || '';
+          const textVi = (seg.textVi || '').trim();
+          let html = '';
+          if (subLangMode === 'bilingual' && textVi && text) {
+            html = '<span class="overlay-line">' + escapeHtml(textVi) + '</span><span class="overlay-line sub">' + escapeHtml(text) + '</span>';
+          } else if (subLangMode === 'vi') {
+            html = escapeHtml(textVi || text);
+          } else {
+            html = escapeHtml(text);
+          }
+          overlayEl.innerHTML = html;
+          overlayEl.parentElement.style.visibility = 'visible';
+        } else {
+          overlayEl.textContent = '';
+          overlayEl.parentElement.style.visibility = 'hidden';
+        }
+      }
       if (idx !== lastTranscriptIdx) {
         lastTranscriptIdx = idx;
         const list = document.getElementById('transcriptList');
@@ -831,6 +927,19 @@
 
         document.getElementById('subSearch')?.addEventListener('input', () => renderTranscriptList());
 
+        document.querySelectorAll('.overlay-toggle-btn').forEach(btn => {
+          const val = btn.getAttribute('data-value');
+          btn.classList.toggle('active', (val === 'on') === overlayEnabled);
+          btn.addEventListener('click', () => {
+            overlayEnabled = val === 'on';
+            localStorage.setItem(overlayKey, overlayEnabled ? 'on' : 'off');
+            document.querySelectorAll('.overlay-toggle-btn').forEach(b => {
+              b.classList.toggle('active', (b.getAttribute('data-value') === 'on') === overlayEnabled);
+            });
+            if (player?.getCurrentTime) updateTranscript(player.getCurrentTime());
+          });
+        });
+
         document.querySelectorAll('.tab').forEach(btn => {
           btn.addEventListener('click', () => {
             const tab = btn.getAttribute('data-tab');
@@ -890,6 +999,9 @@
       <div>
         <div class="video-wrap">
           <div id="player"></div>
+          <div class="transcript-overlay" id="transcriptOverlay" aria-live="polite" style="visibility:hidden">
+            <span class="overlay-text" id="overlayText"></span>
+          </div>
           <div id="fileProtocolNotice" class="file-notice" style="display:none">
             Video không hiển thị khi mở file trực tiếp. Chạy từ project root: <code>python -m http.server 8765</code> rồi mở <code>http://localhost:8765/player.html?dir=output/xxx</code>
           </div>
@@ -902,6 +1014,7 @@
           <button class="tab active" data-tab="summary">Tóm tắt</button>
           <button class="tab" data-tab="timeline">Timeline</button>
           <button class="tab" data-tab="subtitles">Phụ đề</button>
+          <button class="tab" data-tab="settings">Cài đặt</button>
         </div>
 
         <div id="panel-summary" class="tab-panel active">
@@ -928,6 +1041,16 @@
             </div>
           </div>
           <div class="transcript-area transcript-list" id="transcriptList"></div>
+        </div>
+
+        <div id="panel-settings" class="tab-panel">
+          <div class="setting-row">
+            <span class="setting-label">Phụ đề trên video</span>
+            <div class="setting-toggle" role="group" aria-label="Bật hoặc tắt phụ đề overlay">
+              <button type="button" class="overlay-toggle-btn active" id="overlayOn" data-value="on">Bật</button>
+              <button type="button" class="overlay-toggle-btn" id="overlayOff" data-value="off">Tắt</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
