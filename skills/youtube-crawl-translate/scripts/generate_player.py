@@ -19,19 +19,58 @@ def escape_js(s):
     return json.dumps(s, ensure_ascii=False)
 
 
+def _format_duration(seconds: int) -> str:
+    """Format seconds to 'X phút' or 'X phút Y giây'."""
+    if not seconds:
+        return "—"
+    mins = seconds // 60
+    secs = seconds % 60
+    if secs == 0:
+        return f"{mins} phút"
+    return f"{mins} phút {secs} giây"
+
+
+def _format_duration_short(seconds: int) -> str:
+    """Format seconds to 'X phút' for stat box."""
+    if not seconds:
+        return "—"
+    mins = (seconds + 29) // 60
+    return f"{mins} phút"
+
+
+def _format_published_at(iso_str: str | None) -> str:
+    """Format ISO date to 'DD Month YYYY'."""
+    if not iso_str:
+        return ""
+    try:
+        from datetime import datetime
+        dt = datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+        months = ["tháng 1", "tháng 2", "tháng 3", "tháng 4", "tháng 5", "tháng 6",
+                  "tháng 7", "tháng 8", "tháng 9", "tháng 10", "tháng 11", "tháng 12"]
+        return f"{dt.day} {months[dt.month - 1]}, {dt.year}"
+    except Exception:
+        return iso_str
+
+
 def build_html(
     video_id: str,
     video_title: str,
     transcript: list,
     summary: str = "",
     summary_overview: str = "",
+    summary_overview_vi: str = "",
     summary_highlights: list | str = "",
+    channel_title: str = "",
+    published_at: str = "",
+    duration_seconds: int | None = None,
 ) -> str:
     """Build full HTML document."""
     transcript_js = json.dumps(transcript, ensure_ascii=False)
     title_esc = html.escape(video_title)
     overview = summary_overview or summary
+    overview_vi = summary_overview_vi or ""
     overview_esc = html.escape(overview).replace("\n", "<br>") if overview else ""
+    overview_vi_esc = html.escape(overview_vi).replace("\n", "<br>") if overview_vi else ""
     if isinstance(summary_highlights, list):
         highlights = summary_highlights
     elif isinstance(summary_highlights, str) and summary_highlights.strip():
@@ -52,6 +91,23 @@ def build_html(
 
     highlights_html = "".join(make_highlight_li(h) for h in highlights) if highlights else ""
 
+    # Stats
+    dur_sec = duration_seconds
+    if dur_sec is None and transcript:
+        last = transcript[-1]
+        dur_sec = int(last["start"] + last["duration"])
+    dur_display = _format_duration_short(dur_sec or 0)
+    sub_lines = len(transcript)
+    num_events = len(highlights)
+    published_fmt = _format_published_at(published_at) if published_at else ""
+    channel_esc = html.escape(channel_title) if channel_title else ""
+    meta_parts = []
+    if channel_esc:
+        meta_parts.append(f"<span>{channel_esc}</span>")
+    if published_fmt:
+        meta_parts.append(f"<span> · {published_fmt}</span>")
+    video_meta_html = " ".join(meta_parts)
+
     return f'''<!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -63,35 +119,25 @@ def build_html(
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {{
+      --bg: #1a1a1a;
+      --surface: #252525;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #ff0000;
+      --accent-hover: #cc0000;
+      --border: #333;
+      --highlight: #2a2a2a;
+    }}
+
+    [data-theme="light"] {{
       --bg: #f8fafc;
       --surface: #ffffff;
       --text: #1e293b;
       --text-muted: #64748b;
-      --accent: #3b82f6;
+      --accent: #cc0000;
+      --accent-hover: #990000;
       --border: #e2e8f0;
-      --highlight: #eff6ff;
-    }}
-
-    [data-theme="dark"] {{
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --accent: #60a5fa;
-      --border: #334155;
-      --highlight: #1e3a5f;
-    }}
-
-    @media (prefers-color-scheme: dark) {{
-      :root:not([data-theme="light"]) {{
-        --bg: #0f172a;
-        --surface: #1e293b;
-        --text: #f1f5f9;
-        --text-muted: #94a3b8;
-        --accent: #60a5fa;
-        --border: #334155;
-        --highlight: #1e3a5f;
-      }}
+      --highlight: #fef2f2;
     }}
 
     @media (prefers-reduced-motion: reduce) {{
@@ -116,68 +162,84 @@ def build_html(
       .container {{ max-width: 1440px; }}
     }}
 
-    header {{
+    .header-row {{
       display: flex;
+      align-items: flex-start;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
       gap: 1rem;
+      margin-bottom: 1rem;
     }}
 
-    h1 {{
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin: 0;
-      flex: 1;
-      min-width: 0;
+    .header-brand {{
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
     }}
 
-    .theme-toggle {{
-      flex-shrink: 0;
-      width: 44px;
-      height: 44px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      cursor: pointer;
+    .header-top {{
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: background 0.2s, border-color 0.2s;
+      gap: 0.5rem;
     }}
 
-    .theme-toggle svg {{
-      width: 20px;
-      height: 20px;
+    .logo {{
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.25rem;
     }}
 
-    .theme-toggle .icon-moon {{ display: none; }}
-    .theme-toggle .icon-sun {{ display: block; }}
-    [data-theme="dark"] .theme-toggle .icon-sun {{ display: none; }}
-    [data-theme="dark"] .theme-toggle .icon-moon {{ display: block; }}
+    .logo svg {{ width: 28px; height: 28px; flex-shrink: 0; }}
 
-    .theme-toggle:hover {{
-      background: var(--highlight);
+    .badge {{
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
     }}
 
-    .theme-toggle:focus-visible {{
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+    .header-title {{
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.4;
     }}
+
+    .stats-row {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }}
+
+    @media (max-width: 600px) {{
+      .stats-row {{ grid-template-columns: 1fr; }}
+    }}
+
+    .stat-box {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }}
+
+    .stat-label {{ font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem; }}
+    .stat-value {{ font-size: 1.25rem; font-weight: 600; }}
 
     .watch-row {{
-      display: grid;
-      grid-template-columns: 55fr 45fr;
+      display: flex;
+      flex-direction: column;
       gap: 1.5rem;
       margin-bottom: 1.5rem;
     }}
 
     @media (max-width: 767px) {{
       body {{ padding: 0 1rem; }}
-      .watch-row {{
-        grid-template-columns: 1fr;
-      }}
     }}
 
     .video-wrap {{
@@ -205,6 +267,38 @@ def build_html(
       width: 100%;
       height: 100%;
     }}
+
+    .video-meta {{
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }}
+
+    .video-meta a {{ color: var(--accent); text-decoration: none; }}
+    .video-meta a:hover {{ text-decoration: underline; }}
+
+    .theme-toggle {{
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }}
+
+    .theme-toggle svg {{ width: 20px; height: 20px; }}
+    .theme-toggle .icon-moon {{ display: none; }}
+    .theme-toggle .icon-sun {{ display: block; }}
+    [data-theme="light"] .theme-toggle .icon-sun {{ display: none; }}
+    [data-theme="light"] .theme-toggle .icon-moon {{ display: block; }}
+    .theme-toggle:hover {{ background: var(--highlight); }}
+    .theme-toggle:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 2px; }}
 
     .file-notice {{
       position: absolute;
@@ -288,21 +382,149 @@ def build_html(
       border: 1px solid var(--border);
     }}
 
+    .sub-toolbar {{
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }}
+
+    .sub-search {{
+      flex: 1;
+      min-width: 200px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+    }}
+
+    .sub-search::placeholder {{ color: var(--text-muted); }}
+
+    .sub-lang-group {{
+      display: flex;
+      gap: 0.25rem;
+    }}
+
+    .sub-lang-btn {{
+      padding: 0.4rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+    }}
+
+    .sub-lang-btn:hover {{ color: var(--text); }}
+    .sub-lang-btn.active {{
+      background: var(--highlight);
+      color: var(--text);
+      border-color: var(--text-muted);
+    }}
+
+    .transcript-list {{
+      max-height: 400px;
+      overflow-y: auto;
+    }}
+
+    .transcript-item {{
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      align-items: flex-start;
+    }}
+
+    .transcript-item:last-child {{ border-bottom: none; }}
+    .transcript-item:hover {{ background: var(--highlight); }}
+
+    .transcript-item.current {{
+      background: var(--highlight);
+    }}
+
+    .transcript-item.current .transcript-ts {{ color: var(--accent); }}
+
+    .transcript-ts {{
+      flex-shrink: 0;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      min-width: 3.5rem;
+    }}
+
+    .transcript-text {{
+      flex: 1;
+      min-width: 0;
+    }}
+
+    .transcript-text .line-en {{
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.5;
+    }}
+
+    .transcript-text .line-vi {{
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-top: 0.2rem;
+    }}
+
     .transcript-line {{
       font-size: 0.95rem;
       color: var(--text);
       margin-bottom: 0.35rem;
       line-height: 1.5;
+      cursor: pointer;
     }}
 
-    .transcript-line.dim {{
-      opacity: 0.6;
-    }}
-
+    .transcript-line:hover {{ color: var(--accent); }}
+    .transcript-line.dim {{ opacity: 0.6; }}
     .transcript-line.current {{
       font-weight: 500;
       color: var(--accent);
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      background: var(--highlight);
+      padding: 0.25rem 0.5rem;
+      margin: 0 -0.5rem 0.35rem -0.5rem;
+      border-radius: 6px;
     }}
+
+    .tabs {{
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }}
+
+    .tab {{
+      padding: 0.75rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-bottom: -1px;
+    }}
+
+    .tab:hover {{ color: var(--text); }}
+    .tab.active {{
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }}
+
+    .tab-panel {{ display: none; }}
+    .tab-panel.active {{ display: block; }}
 
     .summary-card {{
       background: var(--surface);
@@ -356,45 +578,80 @@ def build_html(
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>{title_esc}</h1>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <div class="header-row">
+      <div class="header-brand">
+        <div class="header-top">
+          <div class="logo">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            YouTube Analyzer
+          </div>
+          <span class="badge">Kết quả</span>
+        </div>
+        <h1 class="header-title">{title_esc}</h1>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
         <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-    </header>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-label">Thời lượng</div><div class="stat-value">{dur_display}</div></div>
+      <div class="stat-box"><div class="stat-label">Dòng phụ đề</div><div class="stat-value">{sub_lines}</div></div>
+      <div class="stat-box"><div class="stat-label">Sự kiện chính</div><div class="stat-value">{num_events}</div></div>
+    </div>
 
     <div class="watch-row">
-      <div class="video-wrap">
-        <div id="player"></div>
-        <div id="fileProtocolNotice" class="file-notice" style="display:none">
-          Video không hiển thị khi mở file trực tiếp. Chạy: <code>lsof -ti:8765 | xargs kill -9 2>/dev/null || true; python -m http.server 8765</code> rồi mở <code>http://localhost:8765/player.html</code>
+      <div>
+        <div class="video-wrap">
+          <div id="player"></div>
+          <div id="fileProtocolNotice" class="file-notice" style="display:none">
+            Video không hiển thị khi mở file trực tiếp. Chạy: <code>lsof -ti:8765 | xargs kill -9 2>/dev/null || true; python -m http.server 8765</code> rồi mở <code>http://localhost:8765/player.html</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          {video_meta_html}
         </div>
       </div>
 
       <div class="transcript-card">
-        <h2>Transcript (sync)</h2>
-        <div class="transcript-header">
-          <button class="lang-chip active" id="langVi" aria-label="Xem phụ đề tiếng Việt">VI</button>
-          <button class="lang-chip" id="langEn" aria-label="View English subtitles">EN</button>
+        <div class="tabs">
+          <button class="tab active" data-tab="summary">Tóm tắt</button>
+          <button class="tab" data-tab="timeline">Timeline</button>
+          <button class="tab" data-tab="subtitles">Phụ đề</button>
         </div>
-        <div class="transcript-area">
-          <div class="transcript-line dim" id="transcriptPrev">—</div>
-          <div class="transcript-line current" id="transcriptCurrent">—</div>
-          <div class="transcript-line dim" id="transcriptNext">—</div>
-        </div>
-      </div>
-    </div>
 
-    <div class="summary-card">
-      <h2>Tóm tắt</h2>
-      <div class="summary-text" id="summary">
-        {f'<div class="summary-overview">{overview_esc}</div>' if overview_esc else ''}
-        {f'<h3 style="font-size:0.9rem;font-weight:600;margin:0 0 0.5rem 0;">Các phần đáng chú ý</h3><ul class="summary-highlights">{highlights_html}</ul>' if highlights_html else ''}
-        {'' if (overview_esc or highlights_html) else '<span class="empty">Chưa có tóm tắt</span>'}
+        <div id="panel-summary" class="tab-panel active">
+          <div class="transcript-header">
+            <button class="lang-chip active" id="langVi" aria-label="Tóm tắt tiếng Việt">VI</button>
+            <button class="lang-chip" id="langEn" aria-label="Summary in English">EN</button>
+          </div>
+          <div class="summary-text" id="summaryOverview">
+            {f'<div class="summary-overview" id="summaryVi">{overview_vi_esc}</div>' if overview_vi_esc else ''}
+            {f'<div class="summary-overview" id="summaryEn">{overview_esc}</div>' if overview_esc else ''}
+            {'' if (overview_esc or overview_vi_esc) else '<span class="empty">Chưa có tóm tắt</span>'}
+          </div>
+        </div>
+
+        <div id="panel-timeline" class="tab-panel">
+          <div class="summary-text">
+            {f'<ul class="summary-highlights">{highlights_html}</ul>' if highlights_html else '<span class="empty">Chưa có timeline</span>'}
+          </div>
+        </div>
+
+        <div id="panel-subtitles" class="tab-panel">
+          <div class="sub-toolbar">
+            <input type="text" class="sub-search" id="subSearch" placeholder="Tìm kiếm trong phụ đề..." aria-label="Tìm kiếm trong phụ đề">
+            <div class="sub-lang-group">
+              <button class="sub-lang-btn active" id="subLangBilingual" data-mode="bilingual">Song ngữ</button>
+              <button class="sub-lang-btn" id="subLangEn" data-mode="en">EN</button>
+              <button class="sub-lang-btn" id="subLangVi" data-mode="vi">VI</button>
+            </div>
+          </div>
+          <div class="transcript-area transcript-list" id="transcriptList"></div>
+        </div>
       </div>
     </div>
-  </div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
@@ -407,14 +664,14 @@ def build_html(
         const r = await fetch('transcript_vi.json');
         if (r.ok) {{
           const data = await r.json();
-          if (Array.isArray(data) && data.length > 0) {{ transcriptData = data; return; }}
+          if (Array.isArray(data) && data.length > 0) {{ transcriptData = data; renderTranscriptList(); return; }}
         }}
       }} catch (e) {{}}
       try {{
         const r = await fetch('transcript.json');
         if (r.ok) {{
           const data = await r.json();
-          if (Array.isArray(data) && data.length > 0) {{ transcriptData = data; return; }}
+          if (Array.isArray(data) && data.length > 0) {{ transcriptData = data; renderTranscriptList(); return; }}
         }}
       }} catch (e) {{}}
     }}
@@ -422,13 +679,11 @@ def build_html(
 
     function initTheme() {{
       const saved = localStorage.getItem('yt-player-theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const theme = saved || (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.setAttribute('data-theme', saved || 'dark');
     }}
 
     document.getElementById('themeToggle').addEventListener('click', () => {{
-      const current = document.documentElement.getAttribute('data-theme');
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
       const next = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('yt-player-theme', next);
@@ -450,47 +705,123 @@ def build_html(
     }}
 
     const langKey = 'yt-player-lang';
-    const savedLang = localStorage.getItem(langKey) || 'vi';
-    let showVi = savedLang === 'vi';
-    document.getElementById('langVi').classList.toggle('active', showVi);
-    document.getElementById('langEn').classList.toggle('active', !showVi);
+    const subLangKey = 'yt-player-sublang';
+    const viEl = document.getElementById('summaryVi');
+    const enEl = document.getElementById('summaryEn');
+    let showVi = (viEl && enEl) ? (localStorage.getItem(langKey) || 'vi') === 'vi' : !!viEl;
+    let subLangMode = localStorage.getItem(subLangKey) || 'bilingual';
 
-    document.getElementById('langVi').addEventListener('click', () => {{
+    function toggleSummaryLang() {{
+      const viEl = document.getElementById('summaryVi');
+      const enEl = document.getElementById('summaryEn');
+      if (viEl) viEl.style.display = showVi ? 'block' : 'none';
+      if (enEl) enEl.style.display = showVi ? 'none' : 'block';
+      document.getElementById('langVi')?.classList.toggle('active', showVi);
+      document.getElementById('langEn')?.classList.toggle('active', !showVi);
+    }}
+
+    document.getElementById('langVi')?.addEventListener('click', () => {{
       showVi = true;
-      document.getElementById('langVi').classList.add('active');
-      document.getElementById('langEn').classList.remove('active');
       localStorage.setItem(langKey, 'vi');
-      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+      toggleSummaryLang();
     }});
-    document.getElementById('langEn').addEventListener('click', () => {{
+    document.getElementById('langEn')?.addEventListener('click', () => {{
       showVi = false;
-      document.getElementById('langEn').classList.add('active');
-      document.getElementById('langVi').classList.remove('active');
       localStorage.setItem(langKey, 'en');
-      if (player && player.getCurrentTime) updateTranscript(player.getCurrentTime());
+      toggleSummaryLang();
+    }});
+    toggleSummaryLang();
+
+    document.querySelectorAll('.sub-lang-btn').forEach(btn => {{
+      btn.classList.toggle('active', btn.getAttribute('data-mode') === subLangMode);
+      btn.addEventListener('click', () => {{
+        subLangMode = btn.getAttribute('data-mode');
+        document.querySelectorAll('.sub-lang-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        localStorage.setItem(subLangKey, subLangMode);
+        renderTranscriptList();
+      }});
     }});
 
-    function getSegmentText(seg) {{
-      const text = seg.text || '—';
-      const textVi = seg.textVi || '';
-      return showVi && textVi ? textVi : text;
+    document.getElementById('subSearch')?.addEventListener('input', () => {{
+      renderTranscriptList();
+    }});
+
+    document.querySelectorAll('.tab').forEach(btn => {{
+      btn.addEventListener('click', () => {{
+        const tab = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + tab)?.classList.add('active');
+      }});
+    }});
+
+    function formatTs(sec) {{
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }}
+
+    function escapeHtml(s) {{
+      const div = document.createElement('div');
+      div.textContent = s || '';
+      return div.innerHTML;
+    }}
+
+    function renderTranscriptList() {{
+      const list = document.getElementById('transcriptList');
+      const searchEl = document.getElementById('subSearch');
+      if (!list) return;
+      const q = (searchEl?.value || '').trim().toLowerCase();
+      const filtered = transcriptData
+        .map((seg, i) => ({{ seg, i }}))
+        .filter(({{ seg }}) => {{
+          if (!q) return true;
+          const text = (seg.text || '').toLowerCase();
+          const textVi = (seg.textVi || '').toLowerCase();
+          return text.includes(q) || textVi.includes(q);
+        }});
+      list.innerHTML = filtered.map(({{ seg, i }}) => {{
+        const start = seg.start ?? 0;
+        const text = seg.text || '—';
+        const textVi = seg.textVi || '';
+        const ts = formatTs(start);
+        let content = '';
+        if (subLangMode === 'bilingual') {{
+          content = `<div class="line-en">${{escapeHtml(text)}}</div>` + (textVi ? `<div class="line-vi">${{escapeHtml(textVi)}}</div>` : '');
+        }} else if (subLangMode === 'vi') {{
+          content = `<div class="line-en">${{escapeHtml(textVi || text)}}</div>`;
+        }} else {{
+          content = `<div class="line-en">${{escapeHtml(text)}}</div>`;
+        }}
+        return `<div class="transcript-item" data-index="${{i}}" data-start="${{start}}" role="button" tabindex="0"><span class="transcript-ts">${{ts}}</span><div class="transcript-text">${{content}}</div></div>`;
+      }}).join('');
+      list.querySelectorAll('.transcript-item').forEach(el => {{
+        el.addEventListener('click', () => {{
+          const sec = parseFloat(el.getAttribute('data-start'));
+          if (player?.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+        }});
+        el.addEventListener('keydown', (e) => {{
+          if (e.key === 'Enter' || e.key === ' ') {{
+            e.preventDefault();
+            const sec = parseFloat(el.getAttribute('data-start'));
+            if (player?.seekTo && !isNaN(sec)) player.seekTo(sec, true);
+          }}
+        }});
+      }});
+      if (player?.getCurrentTime) updateTranscript(player.getCurrentTime());
     }}
 
     function updateTranscript(time) {{
       const idx = findSegmentIndex(time);
-      const prevEl = document.getElementById('transcriptPrev');
-      const curEl = document.getElementById('transcriptCurrent');
-      const nextEl = document.getElementById('transcriptNext');
-      if (idx >= 0) {{
-        curEl.textContent = getSegmentText(transcriptData[idx]);
-        prevEl.textContent = idx > 0 ? getSegmentText(transcriptData[idx - 1]) : '—';
-        nextEl.textContent = idx < transcriptData.length - 1 ? getSegmentText(transcriptData[idx + 1]) : '—';
-      }} else {{
-        prevEl.textContent = '—';
-        curEl.textContent = '—';
-        nextEl.textContent = '—';
-      }}
+      document.querySelectorAll('#transcriptList .transcript-item').forEach(el => {{
+        const i = parseInt(el.getAttribute('data-index'), 10);
+        el.classList.toggle('current', i === idx);
+      }});
     }}
+
+    renderTranscriptList();
 
     document.querySelectorAll('.highlight-ts').forEach(el => {{
       el.addEventListener('click', () => {{
@@ -537,11 +868,18 @@ def build_html(
 
 
 def main():
+    summary_overview = ""
+    summary_overview_vi = ""
+    summary_highlights = []
+    channel_title = ""
+    published_at = ""
+    duration_seconds = None
     if len(sys.argv) >= 5:
         video_id = sys.argv[1]
         video_title = sys.argv[2]
         transcript_raw = sys.argv[3]
         summary = sys.argv[4]
+        summary_overview = summary
         output_dir = sys.argv[5] if len(sys.argv) > 5 else f"output/{video_id}"
     else:
         # Read from stdin as JSON
@@ -552,7 +890,11 @@ def main():
             transcript_raw = json.dumps(data.get("transcript", []))
             summary = data.get("summary", "")
             summary_overview = data.get("summary_overview", "")
+            summary_overview_vi = data.get("summary_overview_vi", "")
             summary_highlights = data.get("summary_highlights", [])
+            channel_title = data.get("channel_title", "")
+            published_at = data.get("published_at", "")
+            duration_seconds = data.get("duration_seconds")
             output_dir = data.get("output_dir", f"output/{video_id}")
         except (json.JSONDecodeError, KeyError) as e:
             print(json.dumps({"error": str(e)}), file=sys.stderr)
@@ -565,10 +907,16 @@ def main():
         sys.exit(1)
 
     html_content = build_html(
-        video_id, video_title, transcript,
+        video_id,
+        video_title,
+        transcript,
         summary=summary,
         summary_overview=summary_overview,
+        summary_overview_vi=summary_overview_vi,
         summary_highlights=summary_highlights,
+        channel_title=channel_title,
+        published_at=published_at,
+        duration_seconds=duration_seconds,
     )
 
     out_path = Path(output_dir)

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Fetch YouTube video title and compute semantic output path.
+Fetch YouTube video metadata and compute semantic output path.
 Usage: python fetch_video_info.py <video_id>
-Output: JSON to stdout: {title, video_id, slug, output_dir}
+Output: JSON to stdout: {title, video_id, slug, output_dir, channel_title?, published_at?, duration?}
 Requires: YOUTUBE_API_KEY in .env (fallback to video-{video_id} if missing)
 """
 import json
@@ -17,6 +17,23 @@ env_path = project_root / ".env"
 if env_path.exists():
     from dotenv import load_dotenv
     load_dotenv(env_path)
+
+
+def parse_iso_duration(duration_str: str) -> int:
+    """Parse ISO 8601 duration (e.g. PT35M42S) to total seconds."""
+    if not duration_str:
+        return 0
+    import re
+    total = 0
+    for m in re.finditer(r"(\d+)([HMS])", duration_str):
+        val, unit = int(m.group(1)), m.group(2)
+        if unit == "H":
+            total += val * 3600
+        elif unit == "M":
+            total += val * 60
+        elif unit == "S":
+            total += val
+    return total
 
 
 def slugify(text: str, max_length: int = 60) -> str:
@@ -46,14 +63,23 @@ def main():
             from googleapiclient.discovery import build
 
             youtube = build("youtube", "v3", developerKey=api_key)
-            response = youtube.videos().list(part="snippet", id=video_id).execute()
+            response = youtube.videos().list(part="snippet,contentDetails", id=video_id).execute()
             items = response.get("items", [])
             if items:
-                title = items[0]["snippet"].get("title", "YouTube Video")
+                item = items[0]
+                snippet = item.get("snippet", {})
+                title = snippet.get("title", "YouTube Video")
                 slug = slugify(title) or f"video-{video_id}"
                 result["title"] = title
                 result["slug"] = slug
                 result["output_dir"] = f"output/{slug}-{video_id}"
+                if snippet.get("channelTitle"):
+                    result["channel_title"] = snippet["channelTitle"]
+                if snippet.get("publishedAt"):
+                    result["published_at"] = snippet["publishedAt"]
+                content = item.get("contentDetails", {})
+                if content.get("duration"):
+                    result["duration_seconds"] = parse_iso_duration(content["duration"])
         except Exception as e:
             result["error"] = str(e)
 
