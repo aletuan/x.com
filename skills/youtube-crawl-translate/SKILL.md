@@ -11,7 +11,7 @@ Pipeline **progressive**: lấy transcript EN từ Apify → tóm tắt → gene
 
 **Quan trọng:** Chỉ dùng transcript từ Apify. **Không fallback web fetch** — nếu Apify fail thì báo lỗi, không tạo player.
 
-**Output:** `output/{slug}-{video_id}/` chứa `player.html`, `transcript.json` (EN), `transcript_vi.json` (sau dịch). Sau khi generate player, script tự động cập nhật `output/README.md`.
+**Output:** `output/{slug}-{video_id}/` chứa `metadata.json`, `transcript.json` (EN), `transcript_vi.json` (sau dịch). Player dùng chung ở root: `player.html?dir=output/{folder}`. Sau khi generate, script tự động cập nhật `output/README.md` — **chỉ link tới player**, không link tới folder.
 
 **Hướng dẫn chi tiết:** Xem [GUIDE.md](skills/youtube-crawl-translate/GUIDE.md) — Video ID là gì, cách lấy, lưu ý transcript bị chặn, ví dụ đầy đủ.
 
@@ -112,13 +112,11 @@ Dùng `output_dir` và `title` từ fetch_video_info (step 2). Transcript EN onl
 echo '{"video_id":"...","video_title":"...","transcript":[...],"summary_overview":"...","summary_highlights":["[00:08] ...","[05:32] ..."],"output_dir":"output/slug-video_id"}' | python skills/youtube-crawl-translate/scripts/generate_player.py
 ```
 
-Sau đó mở trong browser: `open output/{slug}-{video_id}/player.html` hoặc HTTP server.
-
-**Mở HTTP server (cổng 8765 — ít conflict hơn 8080):** Trước khi start, kill process đang chiếm cổng:
+Sau đó mở player (HTTP server chạy từ **project root**):
 ```bash
 lsof -ti:8765 | xargs kill -9 2>/dev/null || true
-cd output/{slug}-{video_id} && python -m http.server 8765
-# Mở http://localhost:8765/player.html
+cd /path/to/X.com && python -m http.server 8765
+# Mở http://localhost:8765/player.html?dir=output/{slug}-{video_id}
 ```
 
 ### Step 6–7 — (Phase 2) Dịch VI + Regenerate
@@ -165,4 +163,4 @@ Cần `ANTHROPIC_API_KEY` trong `.env`. User refresh trang để có phụ đề
 | fetch_transcript.py | video_id, output_dir | + ghi transcript.json vào output_dir |
 | translate_transcript.py | transcript JSON (stdin) | transcript với textVi |
 | translate_transcript.py | transcript (stdin), --output-dir | + ghi transcript_vi.json vào output_dir |
-| generate_player.py | video_id, title, transcript, summary_overview, summary_highlights, output_dir | player.html |
+| generate_player.py | video_id, title, transcript, summary_overview, summary_highlights, output_dir | metadata.json + cập nhật output/README (link player) |

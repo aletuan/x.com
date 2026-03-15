@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Generate YouTube player HTML with transcript sync, dark mode, agentic UI.
-Player loads transcript at runtime: transcript_vi.json (if exists) > transcript.json > embedded fallback.
-No need to regenerate when transcript_vi.json is ready — user refreshes page.
+Uses shared player template + metadata.json to avoid duplicating HTML per video.
+Player loads metadata.json and transcript at runtime.
 Usage: python generate_player.py <video_id> <video_title> <transcript_json> <summary> <output_dir>
 Or: pass args via stdin as JSON object: {video_id, video_title, transcript, summary, output_dir}
 """
@@ -64,7 +64,7 @@ def build_html(
     published_at: str = "",
     duration_seconds: int | None = None,
 ) -> str:
-    """Build full HTML document."""
+    """Build full HTML document (legacy - embeds data). Kept for backward compat."""
     transcript_js = json.dumps(transcript, ensure_ascii=False)
     title_esc = html.escape(video_title)
     overview = summary_overview or summary
@@ -906,22 +906,36 @@ def main():
         print(json.dumps({"error": f"Invalid JSON: {e}"}), file=sys.stderr)
         sys.exit(1)
 
-    html_content = build_html(
-        video_id,
-        video_title,
-        transcript,
-        summary=summary,
-        summary_overview=summary_overview,
-        summary_overview_vi=summary_overview_vi,
-        summary_highlights=summary_highlights,
-        channel_title=channel_title,
-        published_at=published_at,
-        duration_seconds=duration_seconds,
-    )
+    # Build metadata for metadata.json
+    overview = summary_overview or summary
+    if isinstance(summary_highlights, list):
+        highlights = summary_highlights
+    elif isinstance(summary_highlights, str) and summary_highlights.strip():
+        highlights = [s.strip() for s in summary_highlights.strip().split("\n") if s.strip()]
+    else:
+        highlights = []
+    dur_sec = duration_seconds
+    if dur_sec is None and transcript:
+        last = transcript[-1]
+        dur_sec = int(last["start"] + last["duration"])
+    metadata = {
+        "video_id": video_id,
+        "video_title": video_title,
+        "channel_title": channel_title or "",
+        "published_at": published_at or "",
+        "duration_seconds": dur_sec or 0,
+        "sub_lines": len(transcript),
+        "num_events": len(highlights),
+        "summary_overview": overview or "",
+        "summary_overview_vi": summary_overview_vi or "",
+        "summary_highlights": highlights,
+    }
 
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
-    (out_path / "player.html").write_text(html_content, encoding="utf-8")
+    (out_path / "metadata.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    # No longer copy player.html - use single player at project root: player.html?dir=output/xxx
 
     # Update output/README.md index
     project_root = Path(__file__).resolve().parent.parent.parent.parent
@@ -939,7 +953,11 @@ def main():
             capture_output=True,
         )
 
-    print(json.dumps({"output": str(out_path / "player.html")}))
+    try:
+        rel_dir = str(out_path.resolve().relative_to(project_root.resolve()))
+    except (ValueError, TypeError):
+        rel_dir = str(out_path)
+    print(json.dumps({"output_dir": str(out_path), "player_url": f"player.html?dir={rel_dir}"}))
 
 
 if __name__ == "__main__":

@@ -129,16 +129,11 @@ echo '{"video_id":"dQw4w9WgXcQ","video_title":"Never Gonna Give You Up","transcr
 
 ### 6. Mở player
 
-**macOS:**
-```bash
-open output/never-gonna-give-you-up-dQw4w9WgXcQ/player.html
-```
-
-**Hoặc dùng HTTP server (nếu Cursor browser không hỗ trợ file://):** Trước khi start, kill process đang chiếm cổng 8765:
+HTTP server chạy từ **project root** (player dùng chung, load qua `?dir=`):
 ```bash
 lsof -ti:8765 | xargs kill -9 2>/dev/null || true
-cd output/never-gonna-give-you-up-dQw4w9WgXcQ && python -m http.server 8765
-# Mở http://localhost:8765/player.html
+cd /Users/andy/X.com && python -m http.server 8765
+# Mở http://localhost:8765/player.html?dir=output/never-gonna-give-you-up-dQw4w9WgXcQ
 ```
 
 ### 7. (Phase 2) Dịch VI — trong khi user xem
@@ -153,14 +148,16 @@ Player tự load `transcript_vi.json` lúc runtime. User refresh trang để có
 
 ## Cấu trúc output
 
-Folder dùng **slug từ title** + video_id. Transcript luôn nằm cùng thư mục với player:
+Folder dùng **slug từ title** + video_id. Player dùng chung ở project root (`player.html?dir=output/{folder}`):
 
 ```
 output/
 └── {slug}-{video_id}/
-    ├── player.html
-    ├── transcript.json      # EN (sau fetch_transcript)
-    └── transcript_vi.json   # VI (sau translate_transcript)
+    ├── metadata.json       # video_id, title, summary, highlights
+    ├── transcript.json     # EN (sau fetch_transcript)
+    └── transcript_vi.json  # VI (sau translate_transcript)
 ```
+
+**output/README.md:** Bảng YouTube **chỉ link tới player** (`http://localhost:8765/player.html?dir=output/{folder}`), không link tới folder. Script `update_output_index.py` (gọi từ generate_player) tự động thêm entry mới với link player.
 
 Ví dụ: `output/how-to-code-with-ai-agents-advice-from-openclaw-creator-pete-wKy1_KLcxcs/`

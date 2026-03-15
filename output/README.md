@@ -13,36 +13,44 @@ Thư mục chứa output từ các pipeline: YouTube crawl-translate (player + t
 
 ### YouTube (player + transcript EN/VI)
 
-| # | Thư mục | Mô tả |
-|---|---------|-------|
-| 1 | [a-day-in-my-life-lex-fridman-0m3hGZvD-0s](./a-day-in-my-life-lex-fridman-0m3hGZvD-0s/) | A day in my life \| Lex Fridman |
-| 2 | [agent-skills-or-mcp-in-the-era-of-claude-code-pvxNcQTcIy4](./agent-skills-or-mcp-in-the-era-of-claude-code-pvxNcQTcIy4/) | Agent skills or MCP in the era of Claude Code |
-| 3 | [andrej-karpathy-software-is-changing-again-LCEmiRjPEtQ](./andrej-karpathy-software-is-changing-again-LCEmiRjPEtQ/) | Andrej Karpathy: Software is changing again |
-| 4 | [day-in-the-life-of-andrej-karpathy-lex-fridman-podcast-clips-iu3LJY8N_9s](./day-in-the-life-of-andrej-karpathy-lex-fridman-podcast-clips-iu3LJY8N_9s/) | Day in the life of Andrej Karpathy (Lex Fridman clips) |
-| 5 | [dont-build-agents-build-skills-instead-barry-zhang-mahesh-mu-CEvIs9y1uog](./dont-build-agents-build-skills-instead-barry-zhang-mahesh-mu-CEvIs9y1uog/) | Don't build agents, build skills instead |
-| 6 | [from-writing-code-to-managing-agents-most-engineers-arent-re-wEsjK3Smovw](./from-writing-code-to-managing-agents-most-engineers-arent-re-wEsjK3Smovw/) | From writing code to managing agents |
-| 7 | [how-to-code-with-ai-agents-advice-from-openclaw-creator-pete-wKy1_KLcxcs](./how-to-code-with-ai-agents-advice-from-openclaw-creator-pete-wKy1_KLcxcs/) | How to code with AI agents (OpenClaw creator) |
-| 8 | [how-to-learn-and-master-a-new-skill-_ySbzVXiwzQ](./how-to-learn-and-master-a-new-skill-_ySbzVXiwzQ/) | How to learn and master a new skill |
-| 9 | [prompt-engineering-is-dead-Cs7QiSi8KLY](./prompt-engineering-is-dead-Cs7QiSi8KLY/) | Prompt engineering is dead |
-| 10 | [should-you-learn-coding-now-anthropic-ceo-explains-EdZWPB1fIJc](./should-you-learn-coding-now-anthropic-ceo-explains-EdZWPB1fIJc/) | Should you learn coding now? (Anthropic CEO) |
-| 11 | [vertical-ai-agents-could-be-10x-bigger-than-saas-ASABxNenD_U](./vertical-ai-agents-could-be-10x-bigger-than-saas-ASABxNenD_U/) | Vertical AI agents could be 10x bigger than SaaS |
-| 12 | [why-mcp-really-is-a-big-deal-model-context-protocol-with-tim-FLpS7OfD5-s](./why-mcp-really-is-a-big-deal-model-context-protocol-with-tim-FLpS7OfD5-s/) | Why MCP really is a big deal (Model Context Protocol with Tim) |
+| # | Video |
+|---|-------|
+| 1 | [A day in my life \| Lex Fridman](http://localhost:8765/player.html?dir=output/a-day-in-my-life-lex-fridman-0m3hGZvD-0s) |
+| 2 | [Agent skills or MCP in the era of Claude Code](http://localhost:8765/player.html?dir=output/agent-skills-or-mcp-in-the-era-of-claude-code-pvxNcQTcIy4) |
+| 3 | [Andrej Karpathy: Software is changing again](http://localhost:8765/player.html?dir=output/andrej-karpathy-software-is-changing-again-LCEmiRjPEtQ) |
+| 4 | [Day in the life of Andrej Karpathy (Lex Fridman clips)](http://localhost:8765/player.html?dir=output/day-in-the-life-of-andrej-karpathy-lex-fridman-podcast-clips-iu3LJY8N_9s) |
+| 5 | [Don't build agents, build skills instead](http://localhost:8765/player.html?dir=output/dont-build-agents-build-skills-instead-barry-zhang-mahesh-mu-CEvIs9y1uog) |
+| 6 | [From writing code to managing agents](http://localhost:8765/player.html?dir=output/from-writing-code-to-managing-agents-most-engineers-arent-re-wEsjK3Smovw) |
+| 7 | [How to code with AI agents (OpenClaw creator)](http://localhost:8765/player.html?dir=output/how-to-code-with-ai-agents-advice-from-openclaw-creator-pete-wKy1_KLcxcs) |
+| 8 | [How to learn and master a new skill](http://localhost:8765/player.html?dir=output/how-to-learn-and-master-a-new-skill-_ySbzVXiwzQ) |
+| 9 | [Prompt engineering is dead](http://localhost:8765/player.html?dir=output/prompt-engineering-is-dead-Cs7QiSi8KLY) |
+| 10 | [Should you learn coding now? (Anthropic CEO)](http://localhost:8765/player.html?dir=output/should-you-learn-coding-now-anthropic-ceo-explains-EdZWPB1fIJc) |
+| 11 | [Vertical AI agents could be 10x bigger than SaaS](http://localhost:8765/player.html?dir=output/vertical-ai-agents-could-be-10x-bigger-than-saas-ASABxNenD_U) |
+| 12 | [Why MCP really is a big deal (Model Context Protocol with Tim)](http://localhost:8765/player.html?dir=output/why-mcp-really-is-a-big-deal-model-context-protocol-with-tim-FLpS7OfD5-s) |
+| 13 | [Atlassian CEO on the SaaS Apocalypse, AI Agents & What Comes Next](http://localhost:8765/player.html?dir=output/atlassian-ceo-on-the-saas-apocalypse-ai-agents-what-comes-ne-0lzo2tFBFy8) |
+| 14 | [Inside Claude Code With Its Creator Boris Cherny](http://localhost:8765/player.html?dir=output/inside-claude-code-with-its-creator-boris-cherny-PQU9o_5rHC4) |
+| 15 | [LMFAO - Party Rock Anthem ft. Lauren Bennett, GoonRock](http://localhost:8765/player.html?dir=output/test-video) |
+| 16 | [Beyond Vibe Coding with Addy Osmani](http://localhost:8765/player.html?dir=output/beyond-vibe-coding-with-addy-osmani-dHIppEqwi0g) |
 
-### Khác (chưa đầy đủ transcript/dịch)
+### Khác (chưa có transcript_vi)
 
 | Thư mục | Ghi chú |
 |---------|---------|
-| [atlassian-ceo-on-the-saas-apocalypse-ai-agents-what-comes-ne-0lzo2tFBFy8](./atlassian-ceo-on-the-saas-apocalypse-ai-agents-what-comes-ne-0lzo2tFBFy8/) | Chỉ có player |
-| [inside-claude-code-with-its-creator-boris-cherny-PQU9o_5rHC4](./inside-claude-code-with-its-creator-boris-cherny-PQU9o_5rHC4/) | Chỉ có player |
+| [atlassian-ceo-on-the-saas-apocalypse-ai-agents-what-comes-ne-0lzo2tFBFy8](./atlassian-ceo-on-the-saas-apocalypse-ai-agents-what-comes-ne-0lzo2tFBFy8/) | Chưa dịch VI |
+| [inside-claude-code-with-its-creator-boris-cherny-PQU9o_5rHC4](./inside-claude-code-with-its-creator-boris-cherny-PQU9o_5rHC4/) | Chưa dịch VI |
 | [test-video](./test-video/) | Test |
 
 ## Xem player
 
+Chạy HTTP server từ **project root**:
+
 ```bash
-cd output/<thư-mục> && python -m http.server 8765
+cd /path/to/X.com && python -m http.server 8765
 ```
 
-Mở http://localhost:8765/player.html
+Mở: `http://localhost:8765/player.html?dir=output/<thư-mục>`
+
+Ví dụ: http://localhost:8765/player.html?dir=output/how-to-learn-and-master-a-new-skill-_ySbzVXiwzQ
 
 ## Nguồn pipeline
 

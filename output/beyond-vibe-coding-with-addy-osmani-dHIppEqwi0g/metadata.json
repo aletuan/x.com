@@ -1,0 +1,19 @@
+{
+  "video_id": "dHIppEqwi0g",
+  "video_title": "Beyond Vibe Coding with Addy Osmani",
+  "channel_title": "The Pragmatic Engineer",
+  "published_at": "2025-10-29T16:21:17Z",
+  "duration_seconds": 4106,
+  "sub_lines": 1917,
+  "num_events": 6,
+  "summary_overview": "Addy Osmani (Chrome team 13 years, author of Beyond Vibe Coding) phân biệt rõ vibe coding với AI-assisted engineering: vibe coding chỉ phù hợp prototype nhanh, còn AI-assisted engineering giữ kỷ luật và chất lượng. Ông nhấn mạnh spec-driven development — có kế hoạch rõ trước khi build. Luôn đọc thinking log của model để hiểu nó làm gì trước khi approve. Vấn đề 70%: AI có thể làm 70% nhanh nhưng 30% còn lại (edge cases, integration) cần engineer giàu kinh nghiệm; junior dễ bị kẹt. Asynchronous background coding agents (Cursor, Codex, GitHub) là hướng mới. LGTM và CI/CD pass chỉ là signal — vẫn cần human review chất lượng.",
+  "summary_overview_vi": "",
+  "summary_highlights": [
+    "[00:00] What does vibe coding mean? — Addy: vibe coding ≠ AI-assisted engineering",
+    "[02:30] Spec-driven development — clear plan before building, tests derisk LLM use",
+    "[03:00] Losing criticality — important to think through how things work without AI",
+    "[22:16] The 70% problem — experienced engineers finish last 30% easier",
+    "[38:00] Asynchronous background coding agents — Cursor, Codex, GitHub experimenting",
+    "[52:00] LGTM and CI green are signals — still need human quality lens"
+  ]
+}

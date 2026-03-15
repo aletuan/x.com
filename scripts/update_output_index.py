@@ -58,8 +58,11 @@ def parse_table_section(content: str, section_header: str) -> tuple[list[str], i
     return rows, last_idx
 
 
-def extract_folder_from_row(row: str) -> str | None:
-    """Extract folder from markdown link [text](./folder/) or [text](./folder/article.md)."""
+def extract_folder_from_row(row: str, entry_type: str = "article") -> str | None:
+    """Extract folder from markdown link. Article: [text](./folder/article.md). YouTube: [text](...?dir=output/folder)."""
+    if entry_type == "youtube":
+        m = re.search(r"dir=output/([^\"'\s)]+)", row)
+        return m.group(1) if m else None
     m = re.search(r'\]\(\./([^/)]+)(?:/|/article\.md)?\)', row)
     return m.group(1) if m else None
 
@@ -88,8 +91,9 @@ def add_entry_to_readme(
         new_row = f"| {{n}} | {link} | {title_esc} |"
     else:
         section = "### YouTube (player + transcript EN/VI)"
-        link = f"[{folder}](./{folder}/)"
-        new_row = f"| {{n}} | {link} | {title_esc} |"
+        player_url = f"http://localhost:8765/player.html?dir=output/{folder}"
+        link = f"[{title_esc}]({player_url})"
+        new_row = f"| {{n}} | {link} |"
 
     rows, last_idx = parse_table_section(content, section)
     if last_idx < 0:
@@ -97,7 +101,7 @@ def add_entry_to_readme(
 
     existing_folders = set()
     for r in rows:
-        f = extract_folder_from_row(r)
+        f = extract_folder_from_row(r, entry_type)
         if f:
             existing_folders.add(f)
 

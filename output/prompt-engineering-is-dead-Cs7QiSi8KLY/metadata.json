@@ -1,0 +1,21 @@
+{
+  "video_id": "Cs7QiSi8KLY",
+  "video_title": "Prompt Engineering is dead.",
+  "channel_title": "Confluent Developer",
+  "published_at": "2026-02-10T13:00:26Z",
+  "duration_seconds": 1036,
+  "sub_lines": 428,
+  "num_events": 8,
+  "summary_overview": "Confluent Developer talk arguing that prompt engineering is dead — context is king. With at most ~1M tokens in the context window, you must fit everything the LLM needs: business knowledge, goals, tools, resources. The speaker lays out six components of context: user message, system prompt, tools, resources, assistant messages, and tool call history. The latter three grow as the agent runs. More context is not always better — 60–70% of the context window often yields best results. Four engineering tools: (1) System prompt — balance vague vs prescriptive; define outcomes, not if-then logic. (2) Tool descriptions — specific, with full schemas. (3) Data retrieval — RAG works but MCP enables the LLM to decide which resources to fetch; describe what is available and let the model request what it needs. (4) Long-horizon thinking — compaction (summarize large resources), memory (key-value store for intermediate results), and agent composition (split complex logic into sub-agents). Context engineering is the present and future of agentic AI.",
+  "summary_overview_vi": "",
+  "summary_highlights": [
+    "[00:00] Prompt engineering was ridiculous — context is king; million-token window",
+    "[02:26] Six context components: user message, system prompt, tools, resources, assistant messages, tool calls",
+    "[07:28] More is not always better — 60–70% of context window optimal",
+    "[07:48] Four tools: system prompt, tool descriptions, data retrieval, long-horizon thinking",
+    "[08:20] System prompt: Goldilocks — not too vague, not too prescriptive",
+    "[10:10] RAG vs MCP: MCP lets LLM decide which resources to retrieve",
+    "[13:20] Long horizon: compaction, memory (key-value store), agent composition",
+    "[16:22] Context engineering is the present and future of agentic AI"
+  ]
+}
