@@ -232,12 +232,32 @@
       color: #fff;
       text-align: center;
       pointer-events: none;
-      font-size: 1rem;
+      font-size: clamp(0.875rem, 1.5vw + 0.5rem, 1.5rem);
       line-height: 1.5;
       min-height: 2.5rem;
       display: flex;
       align-items: flex-end;
       justify-content: center;
+    }
+
+    .video-wrap:fullscreen .transcript-overlay,
+    .video-wrap:-webkit-full-screen .transcript-overlay {
+      font-size: clamp(1.25rem, 2.5vw + 0.75rem, 2rem);
+    }
+
+    .transcript-overlay[data-size="small"] {
+      font-size: 0.875rem;
+    }
+    .video-wrap:fullscreen .transcript-overlay[data-size="small"],
+    .video-wrap:-webkit-full-screen .transcript-overlay[data-size="small"] {
+      font-size: 1.1rem;
+    }
+    .transcript-overlay[data-size="large"] {
+      font-size: clamp(1.1rem, 2vw + 0.6rem, 1.75rem);
+    }
+    .video-wrap:fullscreen .transcript-overlay[data-size="large"],
+    .video-wrap:-webkit-full-screen .transcript-overlay[data-size="large"] {
+      font-size: clamp(1.5rem, 3vw + 0.5rem, 2.25rem);
     }
 
     .transcript-overlay .overlay-text {
@@ -887,9 +907,11 @@
     const langKey = 'yt-player-lang';
     const subLangKey = 'yt-player-sublang';
     const overlayKey = 'yt-player-overlay';
+    const overlaySizeKey = 'yt-player-overlay-size';
     let showVi = (localStorage.getItem(langKey) || 'vi') === 'vi';
     let subLangMode = localStorage.getItem(subLangKey) || 'bilingual';
     let overlayEnabled = localStorage.getItem(overlayKey) !== 'off';
+    let overlaySize = localStorage.getItem(overlaySizeKey) || 'medium';
     let hasVi = false;
 
     function toggleSummaryLang() {
@@ -1119,6 +1141,26 @@
           });
         });
 
+        function applyOverlaySize() {
+          const el = document.getElementById('transcriptOverlay');
+          if (el) {
+            if (overlaySize === 'medium') el.removeAttribute('data-size');
+            else el.setAttribute('data-size', overlaySize);
+          }
+        }
+        applyOverlaySize();
+        document.querySelectorAll('.overlay-size-btn').forEach(btn => {
+          const size = btn.getAttribute('data-size');
+          btn.classList.toggle('active', size === overlaySize);
+          btn.addEventListener('click', () => {
+            overlaySize = size;
+            localStorage.setItem(overlaySizeKey, overlaySize);
+            document.querySelectorAll('.overlay-size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyOverlaySize();
+          });
+        });
+
         document.querySelectorAll('.tab').forEach(btn => {
           btn.addEventListener('click', () => {
             const tab = btn.getAttribute('data-tab');
@@ -1251,6 +1293,14 @@
             <div class="setting-toggle" role="group" aria-label="Bật hoặc tắt phụ đề overlay">
               <button type="button" class="overlay-toggle-btn active" id="overlayOn" data-value="on">Bật</button>
               <button type="button" class="overlay-toggle-btn" id="overlayOff" data-value="off">Tắt</button>
+            </div>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Kích thước phụ đề</span>
+            <div class="setting-toggle" role="group" aria-label="Kích thước chữ phụ đề overlay">
+              <button type="button" class="overlay-size-btn" id="overlaySizeSmall" data-size="small">Nhỏ</button>
+              <button type="button" class="overlay-size-btn active" id="overlaySizeMedium" data-size="medium">Vừa</button>
+              <button type="button" class="overlay-size-btn" id="overlaySizeLarge" data-size="large">Lớn</button>
             </div>
           </div>
         </div>
