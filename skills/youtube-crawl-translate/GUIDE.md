@@ -139,10 +139,14 @@ cd /Users/andy/X.com && python -m http.server 8765
 ### 7. (Phase 2) Dịch VI — trong khi user xem
 
 ```bash
+# Dịch transcript
 cat output/never-gonna-give-you-up-dQw4w9WgXcQ/transcript.json | python skills/youtube-crawl-translate/scripts/translate_transcript.py --output-dir output/never-gonna-give-you-up-dQw4w9WgXcQ
+
+# Dịch summary (cập nhật summary_overview_vi trong metadata.json)
+python skills/youtube-crawl-translate/scripts/translate_summary.py --output-dir output/never-gonna-give-you-up-dQw4w9WgXcQ
 ```
 
-Player tự load `transcript_vi.json` lúc runtime. User refresh trang để có phụ đề tiếng Việt (không cần regenerate).
+Player tự load `transcript_vi.json` và `metadata.json` lúc runtime. User refresh trang để có phụ đề + tóm tắt tiếng Việt (không cần regenerate).
 
 ---
 

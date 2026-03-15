@@ -29,12 +29,13 @@ Pipeline **progressive**: lấy transcript EN từ Apify → tóm tắt → gene
 | 4 | Summarize | Agent tóm tắt chi tiết với mốc thời gian và đoạn hội thoại ý nghĩa |
 | 5 | Generate HTML + open | `generate_player.py` với transcript EN → Mở browser |
 
-**Phase 2 (background):** Trong khi user xem, dịch VI rồi regenerate
+**Phase 2 (background):** Trong khi user xem, dịch VI
 
 | Step | Hành động | Tool / Cách |
 |------|-----------|-------------|
-| 6 | Dịch EN→VI (Claude) | `cat output_dir/transcript.json \| translate_transcript.py --output-dir output_dir` — ghi `transcript_vi.json` |
-| 7 | (Không cần regenerate) | Player load `transcript_vi.json` lúc runtime → User **refresh** trang để có phụ đề VI |
+| 6a | Dịch transcript EN→VI | `cat output_dir/transcript.json \| translate_transcript.py --output-dir output_dir` — ghi `transcript_vi.json` |
+| 6b | Dịch summary EN→VI | `python translate_summary.py --output-dir output_dir` — cập nhật `summary_overview_vi` trong metadata.json |
+| 7 | (Không cần regenerate) | Player load `transcript_vi.json` + metadata.json lúc runtime → User **refresh** trang để có phụ đề + tóm tắt VI |
 
 ---
 
@@ -81,14 +82,21 @@ Output: JSON array ra stdout (và ghi vào `output_dir/transcript.json`)
 
 Dùng Cursor kết hợp transcript để tạo tóm tắt gồm **2 phần**:
 
-**1. Mô tả tóm tắt** (`summary_overview`): **Chi tiết đủ để người đọc hiểu key content mà không cần xem video.** Không sơ sài. Gồm:
-- Bối cảnh: ai, chủ đề, format (phỏng vấn, talk, v.v.)
-- Luồng nội dung: các ý chính theo thứ tự, giải thích rõ từng khái niệm (ví dụ Gas Town là gì, vampiric effect là gì)
-- Trích dẫn hoặc diễn giải các luận điểm quan trọng
-- Kết luận, dự đoán, takeaway
-- Độ dài: 15–25 câu (hoặc 200–400 từ), không chỉ liệt kê chủ đề.
+**1. Mô tả tóm tắt** (`summary_overview`):
+- **Mục tiêu:** Người đọc hiểu nội dung chính mà không cần xem video.
+- **Cấu trúc:**
+  - Mở (2–3 câu): Ai nói, chủ đề gì, format (talk/interview). Câu hook.
+  - Thân: Các ý chính theo thứ tự. Giải thích thuật ngữ lần đầu (ví dụ: MCP = Model Context Protocol).
+  - Kết: Takeaway, dự đoán.
+- **Phong cách:** Viết trực tiếp, tránh "The speaker says/lays out/argues...". Ưu tiên nội dung hơn meta.
+- **Độ dài:** 15–25 câu (200–400 từ).
+- **Tránh:** Liệt kê chủ đề, câu chung chung, lặp giữa overview và highlights.
 
-**2. Danh sách đáng chú ý** (`summary_highlights`): Liệt kê các phần highlight trong video, mỗi mục gồm timestamp `[MM:SS]` và tóm tắt ngắn.
+**2. Danh sách đáng chú ý** (`summary_highlights`):
+- Mỗi mục: `[MM:SS]` + tóm tắt ngắn (≤15 từ).
+- Phân bố 5–12 mục đều theo thời gian video.
+- Mix: định nghĩa, trích dẫn, insight hành động, câu hỏi nổi bật.
+- Tránh: Nhiều mục chỉ là topic header giống nhau.
 
 **Output JSON cho generate_player:**
 ```json
@@ -119,19 +127,21 @@ cd /path/to/X.com && python -m http.server 8765
 # Mở http://localhost:8765/player.html?dir=output/{slug}-{video_id}
 ```
 
-### Step 6–7 — (Phase 2) Dịch VI + Regenerate
+### Step 6–7 — (Phase 2) Dịch VI
 
 **Trong khi user đang xem**, chạy dịch trong background:
 
 ```bash
-# Step 6: Dịch (từ transcript.json trong output_dir) — ghi transcript_vi.json vào cùng thư mục
+# Step 6a: Dịch transcript — ghi transcript_vi.json
 cat output_dir/transcript.json | python skills/youtube-crawl-translate/scripts/translate_transcript.py --output-dir output_dir
-# Không dùng 2>&1 — sẽ trộn progress vào file
+
+# Step 6b: Dịch summary — cập nhật summary_overview_vi trong metadata.json
+python skills/youtube-crawl-translate/scripts/translate_summary.py --output-dir output_dir
 ```
 
-**Không cần regenerate player.** Player tự load `transcript_vi.json` lúc runtime (ưu tiên hơn `transcript.json`). User refresh trang để có phụ đề tiếng Việt.
+**Không cần regenerate player.** Player load `transcript_vi.json` và `metadata.json` lúc runtime. User refresh trang để có phụ đề + tóm tắt tiếng Việt.
 
-Cần `ANTHROPIC_API_KEY` trong `.env`. User refresh trang để có phụ đề tiếng Việt.
+Cần `ANTHROPIC_API_KEY` trong `.env`.
 
 ---
 
@@ -163,4 +173,5 @@ Cần `ANTHROPIC_API_KEY` trong `.env`. User refresh trang để có phụ đề
 | fetch_transcript.py | video_id, output_dir | + ghi transcript.json vào output_dir |
 | translate_transcript.py | transcript JSON (stdin) | transcript với textVi |
 | translate_transcript.py | transcript (stdin), --output-dir | + ghi transcript_vi.json vào output_dir |
+| translate_summary.py | --output-dir | đọc metadata.json, dịch summary_overview → summary_overview_vi, ghi lại metadata.json |
 | generate_player.py | video_id, title, transcript, summary_overview, summary_highlights, output_dir | metadata.json + cập nhật output/README (link player) |

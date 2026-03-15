@@ -6,16 +6,16 @@
   "duration_seconds": 1036,
   "sub_lines": 428,
   "num_events": 8,
-  "summary_overview": "Confluent Developer talk arguing that prompt engineering is dead — context is king. With at most ~1M tokens in the context window, you must fit everything the LLM needs: business knowledge, goals, tools, resources. The speaker lays out six components of context: user message, system prompt, tools, resources, assistant messages, and tool call history. The latter three grow as the agent runs. More context is not always better — 60–70% of the context window often yields best results. Four engineering tools: (1) System prompt — balance vague vs prescriptive; define outcomes, not if-then logic. (2) Tool descriptions — specific, with full schemas. (3) Data retrieval — RAG works but MCP enables the LLM to decide which resources to fetch; describe what is available and let the model request what it needs. (4) Long-horizon thinking — compaction (summarize large resources), memory (key-value store for intermediate results), and agent composition (split complex logic into sub-agents). Context engineering is the present and future of agentic AI.",
-  "summary_overview_vi": "",
+  "summary_overview": "Prompt engineering is dead — context is king. A Confluent Developer talk breaks down how to design context for agentic AI.\n\nThe context window holds at most ~1M tokens (or 100K for some models). Six components fill it: user message, system prompt, tools, resources, assistant messages, and tool call history. The last three grow as the agent runs. More context is not always better: 60–70% of the window often yields best results.\n\nFour engineering tools: (1) System prompt — balance vague vs prescriptive; define outcomes, not if-then logic. Goldilocks: not \"do a good job\" nor rigid step-by-step. (2) Tool descriptions — specific, with full schemas so the LLM knows inputs and outputs. (3) Data retrieval — RAG (retrieval augmented generation) works for search, but MCP (Model Context Protocol) lets the LLM decide which resources to fetch; describe what is available and let the model request what it needs. (4) Long-horizon thinking — compaction (summarize large resources), memory (key-value store for intermediate results), and agent composition (split complex logic into sub-agents, like splitting a monolith into microservices).\n\nContext engineering is the present and future of agentic AI.",
+  "summary_overview_vi": "Prompt engineering đã lỗi thời — context mới là vua. Một bài nói chuyện của Confluent Developer phân tích cách thiết kế context cho agentic AI.\n\nCửa sổ context chứa tối đa ~1M token (hoặc 100K cho một số mô hình). Sáu thành phần lấp đầy nó: user message, system prompt, tools, resources, assistant messages, và tool call history. Ba thành phần cuối cùng tăng lên khi agent chạy. Nhiều context không phải lúc nào cũng tốt hơn: 60–70% cửa sổ thường cho kết quả tốt nhất.\n\nBốn công cụ engineering: (1) System prompt — cân bằng giữa mơ hồ và chỉ định chi tiết; định nghĩa kết quả, không phải logic if-then. Vàng ôi: không phải \"làm việc tốt\" cũng không phải cứng nhắc từng bước. (2) Tool descriptions — cụ thể, với đầy đủ schemas để LLM biết inputs và outputs. (3) Data retrieval — RAG (retrieval augmented generation) hoạt động tốt cho tìm kiếm, nhưng MCP (Model Context Protocol) cho phép LLM quyết định lấy tài nguyên nào; mô tả những gì có sẵn và để model yêu cầu những gì nó cần. (4) Long-horizon thinking — compaction (tóm tắt tài nguyên lớn), memory (key-value store cho kết quả trung gian), và agent composition (chia logic phức tạp thành sub-agents, giống như chia một monolith thành microservices).\n\nContext engineering là hiện tại và tương lai của agentic AI.",
   "summary_highlights": [
-    "[00:00] Prompt engineering was ridiculous — context is king; million-token window",
+    "[00:00] Prompt engineering ridiculous — context is king",
     "[02:26] Six context components: user message, system prompt, tools, resources, assistant messages, tool calls",
-    "[07:28] More is not always better — 60–70% of context window optimal",
-    "[07:48] Four tools: system prompt, tool descriptions, data retrieval, long-horizon thinking",
+    "[07:28] 60–70% of context window optimal — more is not better",
     "[08:20] System prompt: Goldilocks — not too vague, not too prescriptive",
-    "[10:10] RAG vs MCP: MCP lets LLM decide which resources to retrieve",
-    "[13:20] Long horizon: compaction, memory (key-value store), agent composition",
-    "[16:22] Context engineering is the present and future of agentic AI"
+    "[10:10] MCP lets LLM decide which resources to retrieve",
+    "[13:20] Long horizon: compaction, memory, agent composition",
+    "[15:20] Agent composition — split like microservices",
+    "[16:22] Context engineering is future of agentic AI"
   ]
 }
