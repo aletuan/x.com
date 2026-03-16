@@ -40,6 +40,7 @@ Thư mục chứa output từ các pipeline: YouTube crawl-translate (player + t
 | 14 | [Inside Claude Code With Its Creator Boris Cherny](http://localhost:8765/player.html?dir=output/inside-claude-code-with-its-creator-boris-cherny-PQU9o_5rHC4) |
 | 15 | [LMFAO - Party Rock Anthem ft. Lauren Bennett, GoonRock](http://localhost:8765/player.html?dir=output/test-video) |
 | 16 | [Beyond Vibe Coding with Addy Osmani](http://localhost:8765/player.html?dir=output/beyond-vibe-coding-with-addy-osmani-dHIppEqwi0g) |
+| 17 | [My Conversation With Marc Andreessen, Co-Founder of a16z & Netscape](http://localhost:8765/player.html?dir=output/my-conversation-with-marc-andreessen-co-founder-of-a16z-nets-qBVe3M2g_SA) |
 
 ### Khác (chưa có transcript_vi)
 

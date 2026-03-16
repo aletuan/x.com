@@ -32,6 +32,12 @@ Rules:
 - If a line is [Music] or similar, output the same."""
 
 
+def _sanitize_control_chars(s: str) -> str:
+    """Replace control chars that break JSON parsing (Claude sometimes returns these in strings)."""
+    import re
+    return re.sub(r"[\x00-\x1f\x7f]", " ", s)
+
+
 def _extract_json_array(raw: str):
     """Extract first valid JSON array from response (handles extra text, markdown)."""
     raw = raw.strip()
@@ -40,6 +46,11 @@ def _extract_json_array(raw: str):
     try:
         return json.loads(raw)
     except json.JSONDecodeError as e:
+        if "control character" in str(e).lower() or "Invalid control" in str(e):
+            try:
+                return json.loads(_sanitize_control_chars(raw))
+            except json.JSONDecodeError:
+                pass
         if "Extra data" in str(e):
             # Response has valid JSON + trailing text: find first complete array
             depth, start, i = 0, -1, 0
