@@ -471,7 +471,7 @@
     .transcript-item {
       display: flex;
       gap: 1rem;
-      padding: 0.75rem 0;
+      padding: 0.75rem 0 0.75rem 1rem;
       border-bottom: 1px solid var(--border);
       cursor: pointer;
       align-items: flex-start;
@@ -596,8 +596,6 @@
     .summary-overview {
       margin-bottom: 1.25rem;
       line-height: 1.65;
-      max-width: 90ch;
-      width: 100%;
     }
 
     .summary-overview p {
@@ -920,7 +918,12 @@
       const videoMeta = document.getElementById('videoMeta');
       if (videoMeta) {
         const parts = [];
-        if (meta.channel_title) parts.push('<span>' + escapeHtml(meta.channel_title) + '</span>');
+        if (meta.channel_title) {
+          const channelUrl = meta.channel_id
+            ? 'https://www.youtube.com/channel/' + encodeURIComponent(meta.channel_id)
+            : 'https://www.youtube.com/results?search_query=' + encodeURIComponent(meta.channel_title + ' channel');
+          parts.push('<a href="' + channelUrl + '" target="_blank" rel="noopener">' + escapeHtml(meta.channel_title) + '</a>');
+        }
         const pubFmt = formatPublishedAt(meta.published_at);
         if (pubFmt) parts.push('<span> · ' + escapeHtml(pubFmt) + '</span>');
         videoMeta.innerHTML = parts.join(' ');

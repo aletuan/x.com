@@ -872,6 +872,7 @@ def main():
     summary_overview_vi = ""
     summary_highlights = []
     channel_title = ""
+    channel_id = ""
     published_at = ""
     duration_seconds = None
     if len(sys.argv) >= 5:
@@ -893,6 +894,7 @@ def main():
             summary_overview_vi = data.get("summary_overview_vi", "")
             summary_highlights = data.get("summary_highlights", [])
             channel_title = data.get("channel_title", "")
+            channel_id = data.get("channel_id", "")
             published_at = data.get("published_at", "")
             duration_seconds = data.get("duration_seconds")
             output_dir = data.get("output_dir", f"output/{video_id}")
@@ -922,6 +924,7 @@ def main():
         "video_id": video_id,
         "video_title": video_title,
         "channel_title": channel_title or "",
+        "channel_id": channel_id or "",
         "published_at": published_at or "",
         "duration_seconds": dur_sec or 0,
         "sub_lines": len(transcript),

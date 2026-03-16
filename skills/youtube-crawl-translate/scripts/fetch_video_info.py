@@ -2,7 +2,7 @@
 """
 Fetch YouTube video metadata and compute semantic output path.
 Usage: python fetch_video_info.py <video_id>
-Output: JSON to stdout: {title, video_id, slug, output_dir, channel_title?, published_at?, duration?}
+Output: JSON to stdout: {title, video_id, slug, output_dir, channel_title?, channel_id?, published_at?, duration?}
 Requires: YOUTUBE_API_KEY in .env (fallback to video-{video_id} if missing)
 """
 import json
@@ -75,6 +75,8 @@ def main():
                 result["output_dir"] = f"output/{slug}-{video_id}"
                 if snippet.get("channelTitle"):
                     result["channel_title"] = snippet["channelTitle"]
+                if snippet.get("channelId"):
+                    result["channel_id"] = snippet["channelId"]
                 if snippet.get("publishedAt"):
                     result["published_at"] = snippet["publishedAt"]
                 content = item.get("contentDetails", {})
